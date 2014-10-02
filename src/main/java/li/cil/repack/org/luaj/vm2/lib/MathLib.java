@@ -19,14 +19,14 @@
 * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 * THE SOFTWARE.
 ******************************************************************************/
-package org.luaj.vm3.lib;
+package li.cil.repack.org.luaj.vm2.lib;
 
 import java.util.Random;
 
-import org.luaj.vm3.LuaDouble;
-import org.luaj.vm3.LuaTable;
-import org.luaj.vm3.LuaValue;
-import org.luaj.vm3.Varargs;
+import li.cil.repack.org.luaj.vm2.LuaDouble;
+import li.cil.repack.org.luaj.vm2.LuaTable;
+import li.cil.repack.org.luaj.vm2.LuaValue;
+import li.cil.repack.org.luaj.vm2.Varargs;
 
 /** 
  * Subclass of {@link LibFunction} which implements the lua standard {@code math} 
@@ -34,7 +34,7 @@ import org.luaj.vm3.Varargs;
  * <p> 
  * It contains only the math library support that is possible on JME.  
  * For a more complete implementation based on math functions specific to JSE 
- * use {@link org.luaj.vm3.lib.jse.JseMathLib}.
+ * use {@link li.cil.repack.org.luaj.vm2.lib.jse.JseMathLib}.
  * In Particular the following math functions are <b>not</b> implemented by this library:
  * <ul>
  * <li>acos</li>

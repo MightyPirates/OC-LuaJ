@@ -19,7 +19,7 @@
 * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 * THE SOFTWARE.
 ******************************************************************************/
-package org.luaj.vm3.lib.jse;
+package li.cil.repack.org.luaj.vm2.lib.jse;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
@@ -33,7 +33,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import org.luaj.vm3.LuaValue;
+import li.cil.repack.org.luaj.vm2.LuaValue;
 
 /**
  * LuaValue that represents a Java class.

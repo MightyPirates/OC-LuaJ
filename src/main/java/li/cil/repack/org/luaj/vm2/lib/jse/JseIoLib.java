@@ -19,7 +19,7 @@
 * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 * THE SOFTWARE.
 ******************************************************************************/
-package org.luaj.vm3.lib.jse;
+package li.cil.repack.org.luaj.vm2.lib.jse;
 
 import java.io.BufferedInputStream;
 import java.io.EOFException;
@@ -29,11 +29,11 @@ import java.io.OutputStream;
 import java.io.PrintStream;
 import java.io.RandomAccessFile;
 
-import org.luaj.vm3.LuaError;
-import org.luaj.vm3.LuaString;
-import org.luaj.vm3.LuaValue;
-import org.luaj.vm3.lib.IoLib;
-import org.luaj.vm3.lib.LibFunction;
+import li.cil.repack.org.luaj.vm2.LuaError;
+import li.cil.repack.org.luaj.vm2.LuaString;
+import li.cil.repack.org.luaj.vm2.LuaValue;
+import li.cil.repack.org.luaj.vm2.lib.IoLib;
+import li.cil.repack.org.luaj.vm2.lib.LibFunction;
 
 /** 
  * Subclass of {@link IoLib} and therefore {@link LibFunction} which implements the lua standard {@code io} 
@@ -63,7 +63,7 @@ import org.luaj.vm3.lib.LibFunction;
  * This has been implemented to match as closely as possible the behavior in the corresponding library in C.
  * @see LibFunction
  * @see JsePlatform
- * @see org.luaj.vm3.lib.jme.JmePlatform
+ * @see li.cil.repack.org.luaj.vm2.lib.jme.JmePlatform
  * @see IoLib
  * @see JmeIoLib
  * @see <a href="http://www.lua.org/manual/5.2/manual.html#6.8">Lua 5.2 I/O Lib Reference</a>

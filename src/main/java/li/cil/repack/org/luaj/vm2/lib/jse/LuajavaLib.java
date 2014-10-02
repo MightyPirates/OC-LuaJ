@@ -19,7 +19,7 @@
 * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 * THE SOFTWARE.
 ******************************************************************************/
-package org.luaj.vm3.lib.jse;
+package li.cil.repack.org.luaj.vm2.lib.jse;
 
 import java.lang.reflect.Array;
 import java.lang.reflect.InvocationHandler;
@@ -27,13 +27,13 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
 
-import org.luaj.vm3.LuaError;
-import org.luaj.vm3.LuaTable;
-import org.luaj.vm3.LuaValue;
-import org.luaj.vm3.Varargs;
-import org.luaj.vm3.compiler.LuaC;
-import org.luaj.vm3.lib.LibFunction;
-import org.luaj.vm3.lib.VarArgFunction;
+import li.cil.repack.org.luaj.vm2.LuaError;
+import li.cil.repack.org.luaj.vm2.LuaTable;
+import li.cil.repack.org.luaj.vm2.LuaValue;
+import li.cil.repack.org.luaj.vm2.Varargs;
+import li.cil.repack.org.luaj.vm2.compiler.LuaC;
+import li.cil.repack.org.luaj.vm2.lib.LibFunction;
+import li.cil.repack.org.luaj.vm2.lib.VarArgFunction;
 
 /** 
  * Subclass of {@link LibFunction} which implements the features of the luajava package. 
@@ -72,8 +72,8 @@ import org.luaj.vm3.lib.VarArgFunction;
  * This has been implemented to match as closely as possible the behavior in the corresponding library in C.
  * 
  * @see LibFunction
- * @see org.luaj.vm3.lib.jse.JsePlatform
- * @see org.luaj.vm3.lib.jme.JmePlatform
+ * @see li.cil.repack.org.luaj.vm2.lib.jse.JsePlatform
+ * @see li.cil.repack.org.luaj.vm2.lib.jme.JmePlatform
  * @see LuaC
  * @see CoerceJavaToLua
  * @see CoerceLuaToJava

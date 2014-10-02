@@ -19,14 +19,14 @@
 * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 * THE SOFTWARE.
 ******************************************************************************/
-package org.luaj.vm3.lib.jse;
+package li.cil.repack.org.luaj.vm2.lib.jse;
 
 import java.lang.reflect.Array;
 
-import org.luaj.vm3.LuaTable;
-import org.luaj.vm3.LuaUserdata;
-import org.luaj.vm3.LuaValue;
-import org.luaj.vm3.lib.OneArgFunction;
+import li.cil.repack.org.luaj.vm2.LuaTable;
+import li.cil.repack.org.luaj.vm2.LuaUserdata;
+import li.cil.repack.org.luaj.vm2.LuaValue;
+import li.cil.repack.org.luaj.vm2.lib.OneArgFunction;
 
 /**
  * LuaValue that represents a Java instance of array type.

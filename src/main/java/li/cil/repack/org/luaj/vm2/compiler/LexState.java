@@ -19,21 +19,21 @@
 * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 * THE SOFTWARE.
 ******************************************************************************/
-package org.luaj.vm3.compiler;
+package li.cil.repack.org.luaj.vm2.compiler;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Hashtable;
 
-import org.luaj.vm3.LocVars;
-import org.luaj.vm3.Lua;
-import org.luaj.vm3.LuaError;
-import org.luaj.vm3.LuaInteger;
-import org.luaj.vm3.LuaString;
-import org.luaj.vm3.LuaValue;
-import org.luaj.vm3.Prototype;
-import org.luaj.vm3.compiler.FuncState.BlockCnt;
-import org.luaj.vm3.lib.MathLib;
+import li.cil.repack.org.luaj.vm2.LocVars;
+import li.cil.repack.org.luaj.vm2.Lua;
+import li.cil.repack.org.luaj.vm2.LuaError;
+import li.cil.repack.org.luaj.vm2.LuaInteger;
+import li.cil.repack.org.luaj.vm2.LuaString;
+import li.cil.repack.org.luaj.vm2.LuaValue;
+import li.cil.repack.org.luaj.vm2.Prototype;
+import li.cil.repack.org.luaj.vm2.compiler.FuncState.BlockCnt;
+import li.cil.repack.org.luaj.vm2.lib.MathLib;
 
 public class LexState {
 

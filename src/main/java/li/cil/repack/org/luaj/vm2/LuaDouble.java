@@ -19,9 +19,9 @@
 * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 * THE SOFTWARE.
 ******************************************************************************/
-package org.luaj.vm3;
+package li.cil.repack.org.luaj.vm2;
 
-import org.luaj.vm3.lib.MathLib;
+import li.cil.repack.org.luaj.vm2.lib.MathLib;
 
 /**
  * Extension of {@link LuaNumber} which can hold a Java double as its value. 

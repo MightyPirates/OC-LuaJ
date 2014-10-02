@@ -19,12 +19,12 @@
 * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 * THE SOFTWARE.
 ******************************************************************************/
-package org.luaj.vm3.ast;
+package li.cil.repack.org.luaj.vm2.ast;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import org.luaj.vm3.LuaString;
+import li.cil.repack.org.luaj.vm2.LuaString;
 
 public class FuncArgs extends SyntaxElement {
 

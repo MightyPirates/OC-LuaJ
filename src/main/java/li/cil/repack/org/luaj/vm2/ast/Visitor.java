@@ -19,11 +19,11 @@
 * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 * THE SOFTWARE.
 ******************************************************************************/
-package org.luaj.vm3.ast;
+package li.cil.repack.org.luaj.vm2.ast;
 
 import java.util.List;
 
-import org.luaj.vm3.ast.Exp.VarExp;
+import li.cil.repack.org.luaj.vm2.ast.Exp.VarExp;
 
 abstract public class Visitor {
 	public void visit(Chunk chunk) {

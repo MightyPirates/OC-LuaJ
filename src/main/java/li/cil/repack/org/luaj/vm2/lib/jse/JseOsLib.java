@@ -19,14 +19,14 @@
 * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 * THE SOFTWARE.
 ******************************************************************************/
-package org.luaj.vm3.lib.jse;
+package li.cil.repack.org.luaj.vm2.lib.jse;
 
 import java.io.File;
 import java.io.IOException;
 
-import org.luaj.vm3.LuaValue;
-import org.luaj.vm3.Varargs;
-import org.luaj.vm3.lib.LibFunction;
+import li.cil.repack.org.luaj.vm2.LuaValue;
+import li.cil.repack.org.luaj.vm2.Varargs;
+import li.cil.repack.org.luaj.vm2.lib.LibFunction;
 
 /**
  * Subclass of {@link LibFunction} which implements the standard lua {@code os} library.
@@ -66,10 +66,10 @@ import org.luaj.vm3.lib.LibFunction;
  * @see LibFunction
  * @see OsLib
  * @see JsePlatform
- * @see org.luaj.vm3.lib.jme.JmePlatform
+ * @see li.cil.repack.org.luaj.vm2.lib.jme.JmePlatform
  * @see <a href="http://www.lua.org/manual/5.2/manual.html#6.9">Lua 5.2 OS Lib Reference</a>
  */
-public class JseOsLib extends org.luaj.vm3.lib.OsLib {
+public class JseOsLib extends li.cil.repack.org.luaj.vm2.lib.OsLib {
 
 	/** return code indicating the execute() threw an I/O exception */
 	public static int EXEC_IOEXCEPTION = 1;

@@ -19,7 +19,7 @@
 * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 * THE SOFTWARE.
 ******************************************************************************/
-package org.luaj.vm3;
+package li.cil.repack.org.luaj.vm2;
 
 import java.io.ByteArrayInputStream;
 import java.io.DataOutputStream;
@@ -28,8 +28,8 @@ import java.io.InputStream;
 import java.io.PrintStream;
 import java.util.Arrays;
 
-import org.luaj.vm3.lib.MathLib;
-import org.luaj.vm3.lib.StringLib;
+import li.cil.repack.org.luaj.vm2.lib.MathLib;
+import li.cil.repack.org.luaj.vm2.lib.StringLib;
 
 /**
  * Subclass of {@link LuaValue} for representing lua strings. 

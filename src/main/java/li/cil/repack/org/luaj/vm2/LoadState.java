@@ -19,13 +19,13 @@
 * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 * THE SOFTWARE.
 ******************************************************************************/
-package org.luaj.vm3;
+package li.cil.repack.org.luaj.vm2;
 
 import java.io.DataInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 
-import org.luaj.vm3.compiler.DumpState;
+import li.cil.repack.org.luaj.vm2.compiler.DumpState;
 
 /**
 * Class to undump compiled lua bytecode into a {@link Prototype} instances.

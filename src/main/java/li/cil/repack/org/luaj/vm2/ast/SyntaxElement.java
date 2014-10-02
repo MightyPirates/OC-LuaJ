@@ -19,7 +19,7 @@
 * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 * THE SOFTWARE.
 ******************************************************************************/
-package org.luaj.vm3.ast;
+package li.cil.repack.org.luaj.vm2.ast;
 
 /** Base class for syntax elements of the parse tree that appear in source files.
  * The LuaParser class will fill these values out during parsing for use in 

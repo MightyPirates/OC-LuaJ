@@ -1,17 +1,17 @@
-package org.luaj.vm3.ast;
+package li.cil.repack.org.luaj.vm2.ast;
 
 import java.util.List;
 
-import org.luaj.vm3.LuaValue;
-import org.luaj.vm3.ast.Exp.Constant;
-import org.luaj.vm3.ast.Exp.NameExp;
-import org.luaj.vm3.ast.Exp.VarExp;
-import org.luaj.vm3.ast.Stat.Assign;
-import org.luaj.vm3.ast.Stat.FuncDef;
-import org.luaj.vm3.ast.Stat.GenericFor;
-import org.luaj.vm3.ast.Stat.LocalAssign;
-import org.luaj.vm3.ast.Stat.LocalFuncDef;
-import org.luaj.vm3.ast.Stat.NumericFor;
+import li.cil.repack.org.luaj.vm2.LuaValue;
+import li.cil.repack.org.luaj.vm2.ast.Exp.Constant;
+import li.cil.repack.org.luaj.vm2.ast.Exp.NameExp;
+import li.cil.repack.org.luaj.vm2.ast.Exp.VarExp;
+import li.cil.repack.org.luaj.vm2.ast.Stat.Assign;
+import li.cil.repack.org.luaj.vm2.ast.Stat.FuncDef;
+import li.cil.repack.org.luaj.vm2.ast.Stat.GenericFor;
+import li.cil.repack.org.luaj.vm2.ast.Stat.LocalAssign;
+import li.cil.repack.org.luaj.vm2.ast.Stat.LocalFuncDef;
+import li.cil.repack.org.luaj.vm2.ast.Stat.NumericFor;
 
 /** 
  * Visitor that resolves names to scopes.

@@ -19,17 +19,17 @@
 * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 * THE SOFTWARE.
 ******************************************************************************/
-package org.luaj.vm3.lib;
+package li.cil.repack.org.luaj.vm2.lib;
 
 import java.io.IOException;
 import java.util.Calendar;
 import java.util.Date;
 
-import org.luaj.vm3.Buffer;
-import org.luaj.vm3.Globals;
-import org.luaj.vm3.LuaTable;
-import org.luaj.vm3.LuaValue;
-import org.luaj.vm3.Varargs;
+import li.cil.repack.org.luaj.vm2.Buffer;
+import li.cil.repack.org.luaj.vm2.Globals;
+import li.cil.repack.org.luaj.vm2.LuaTable;
+import li.cil.repack.org.luaj.vm2.LuaValue;
+import li.cil.repack.org.luaj.vm2.Varargs;
 
 /**
  * Subclass of {@link LibFunction} which implements the standard lua {@code os} library.

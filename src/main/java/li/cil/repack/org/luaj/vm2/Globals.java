@@ -19,17 +19,17 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  ******************************************************************************/
-package org.luaj.vm3;
+package li.cil.repack.org.luaj.vm2;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.PrintStream;
 import java.io.Reader;
 
-import org.luaj.vm3.lib.BaseLib;
-import org.luaj.vm3.lib.DebugLib;
-import org.luaj.vm3.lib.PackageLib;
-import org.luaj.vm3.lib.ResourceFinder;
+import li.cil.repack.org.luaj.vm2.lib.BaseLib;
+import li.cil.repack.org.luaj.vm2.lib.DebugLib;
+import li.cil.repack.org.luaj.vm2.lib.PackageLib;
+import li.cil.repack.org.luaj.vm2.lib.ResourceFinder;
 
 /**
  * Global environment used by luaj.  Contains global variables referenced by executing lua.
@@ -100,8 +100,8 @@ import org.luaj.vm3.lib.ResourceFinder;
  * static immutable resources such as class data and string data.
  * <p>
  * 
- * @see org.luaj.vm3.lib.jse.JsePlatform
- * @see org.luaj.vm3.lib.jme.JmePlatform
+ * @see li.cil.repack.org.luaj.vm2.lib.jse.JsePlatform
+ * @see li.cil.repack.org.luaj.vm2.lib.jme.JmePlatform
  * @see LuaValue
  * @see Compiler
  * @see Loader

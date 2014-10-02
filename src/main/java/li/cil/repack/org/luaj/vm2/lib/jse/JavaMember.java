@@ -19,11 +19,11 @@
 * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 * THE SOFTWARE.
 ******************************************************************************/
-package org.luaj.vm3.lib.jse;
+package li.cil.repack.org.luaj.vm2.lib.jse;
 
-import org.luaj.vm3.Varargs;
-import org.luaj.vm3.lib.VarArgFunction;
-import org.luaj.vm3.lib.jse.CoerceLuaToJava.Coercion;
+import li.cil.repack.org.luaj.vm2.Varargs;
+import li.cil.repack.org.luaj.vm2.lib.VarArgFunction;
+import li.cil.repack.org.luaj.vm2.lib.jse.CoerceLuaToJava.Coercion;
 
 /**
  * Java method or constructor.

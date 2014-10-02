@@ -19,13 +19,13 @@
 * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 * THE SOFTWARE.
 ******************************************************************************/
-package org.luaj.vm3.lib.jse;
+package li.cil.repack.org.luaj.vm2.lib.jse;
 
 import java.lang.reflect.Field;
 
-import org.luaj.vm3.LuaError;
-import org.luaj.vm3.LuaUserdata;
-import org.luaj.vm3.LuaValue;
+import li.cil.repack.org.luaj.vm2.LuaError;
+import li.cil.repack.org.luaj.vm2.LuaUserdata;
+import li.cil.repack.org.luaj.vm2.LuaValue;
 
 /**
  * LuaValue that represents a Java instance.

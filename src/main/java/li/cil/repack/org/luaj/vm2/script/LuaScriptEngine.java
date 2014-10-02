@@ -19,16 +19,16 @@
 * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 * THE SOFTWARE.
 ******************************************************************************/
-package org.luaj.vm3.script;
+package li.cil.repack.org.luaj.vm2.script;
 
 import java.io.*;
 
 import javax.script.*;
 
-import org.luaj.vm3.*;
-import org.luaj.vm3.lib.ThreeArgFunction;
-import org.luaj.vm3.lib.TwoArgFunction;
-import org.luaj.vm3.lib.jse.CoerceJavaToLua;
+import li.cil.repack.org.luaj.vm2.*;
+import li.cil.repack.org.luaj.vm2.lib.ThreeArgFunction;
+import li.cil.repack.org.luaj.vm2.lib.TwoArgFunction;
+import li.cil.repack.org.luaj.vm2.lib.jse.CoerceJavaToLua;
 
 /**
  * Implementation of the ScriptEngine interface which can compile and execute

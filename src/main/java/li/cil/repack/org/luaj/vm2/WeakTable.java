@@ -19,12 +19,12 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  ******************************************************************************/
-package org.luaj.vm3;
+package li.cil.repack.org.luaj.vm2;
 
 import java.lang.ref.WeakReference;
 
-import org.luaj.vm3.LuaTable.Slot;
-import org.luaj.vm3.LuaTable.StrongSlot;
+import li.cil.repack.org.luaj.vm2.LuaTable.Slot;
+import li.cil.repack.org.luaj.vm2.LuaTable.StrongSlot;
 
 /**
  * Subclass of {@link LuaTable} that provides weak key and weak value semantics. 

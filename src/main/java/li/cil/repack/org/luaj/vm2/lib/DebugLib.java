@@ -19,24 +19,24 @@
 * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 * THE SOFTWARE.
 ******************************************************************************/
-package org.luaj.vm3.lib;
+package li.cil.repack.org.luaj.vm2.lib;
 
-import org.luaj.vm3.Globals;
-import org.luaj.vm3.Lua;
-import org.luaj.vm3.LuaBoolean;
-import org.luaj.vm3.LuaClosure;
-import org.luaj.vm3.LuaError;
-import org.luaj.vm3.LuaFunction;
-import org.luaj.vm3.LuaNil;
-import org.luaj.vm3.LuaNumber;
-import org.luaj.vm3.LuaString;
-import org.luaj.vm3.LuaTable;
-import org.luaj.vm3.LuaThread;
-import org.luaj.vm3.LuaUserdata;
-import org.luaj.vm3.LuaValue;
-import org.luaj.vm3.Print;
-import org.luaj.vm3.Prototype;
-import org.luaj.vm3.Varargs;
+import li.cil.repack.org.luaj.vm2.Globals;
+import li.cil.repack.org.luaj.vm2.Lua;
+import li.cil.repack.org.luaj.vm2.LuaBoolean;
+import li.cil.repack.org.luaj.vm2.LuaClosure;
+import li.cil.repack.org.luaj.vm2.LuaError;
+import li.cil.repack.org.luaj.vm2.LuaFunction;
+import li.cil.repack.org.luaj.vm2.LuaNil;
+import li.cil.repack.org.luaj.vm2.LuaNumber;
+import li.cil.repack.org.luaj.vm2.LuaString;
+import li.cil.repack.org.luaj.vm2.LuaTable;
+import li.cil.repack.org.luaj.vm2.LuaThread;
+import li.cil.repack.org.luaj.vm2.LuaUserdata;
+import li.cil.repack.org.luaj.vm2.LuaValue;
+import li.cil.repack.org.luaj.vm2.Print;
+import li.cil.repack.org.luaj.vm2.Prototype;
+import li.cil.repack.org.luaj.vm2.Varargs;
 
 /** 
  * Subclass of {@link LibFunction} which implements the lua standard {@code debug} 

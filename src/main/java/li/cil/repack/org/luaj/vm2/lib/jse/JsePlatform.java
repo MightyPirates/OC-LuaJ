@@ -19,20 +19,20 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  ******************************************************************************/
-package org.luaj.vm3.lib.jse;
+package li.cil.repack.org.luaj.vm2.lib.jse;
 
-import org.luaj.vm3.Globals;
-import org.luaj.vm3.LoadState;
-import org.luaj.vm3.LuaThread;
-import org.luaj.vm3.LuaValue;
-import org.luaj.vm3.compiler.LuaC;
-import org.luaj.vm3.lib.Bit32Lib;
-import org.luaj.vm3.lib.CoroutineLib;
-import org.luaj.vm3.lib.DebugLib;
-import org.luaj.vm3.lib.PackageLib;
-import org.luaj.vm3.lib.ResourceFinder;
-import org.luaj.vm3.lib.StringLib;
-import org.luaj.vm3.lib.TableLib;
+import li.cil.repack.org.luaj.vm2.Globals;
+import li.cil.repack.org.luaj.vm2.LoadState;
+import li.cil.repack.org.luaj.vm2.LuaThread;
+import li.cil.repack.org.luaj.vm2.LuaValue;
+import li.cil.repack.org.luaj.vm2.compiler.LuaC;
+import li.cil.repack.org.luaj.vm2.lib.Bit32Lib;
+import li.cil.repack.org.luaj.vm2.lib.CoroutineLib;
+import li.cil.repack.org.luaj.vm2.lib.DebugLib;
+import li.cil.repack.org.luaj.vm2.lib.PackageLib;
+import li.cil.repack.org.luaj.vm2.lib.ResourceFinder;
+import li.cil.repack.org.luaj.vm2.lib.StringLib;
+import li.cil.repack.org.luaj.vm2.lib.TableLib;
 
 /** The {@link JsePlatform} class is a convenience class to standardize 
  * how globals tables are initialized for the JSE platform. 

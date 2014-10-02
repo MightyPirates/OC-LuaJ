@@ -19,16 +19,16 @@
 * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 * THE SOFTWARE.
 ******************************************************************************/
-package org.luaj.vm3.lib.jse;
+package li.cil.repack.org.luaj.vm2.lib.jse;
 
 import java.lang.reflect.Array;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.luaj.vm3.LuaString;
-import org.luaj.vm3.LuaTable;
-import org.luaj.vm3.LuaValue;
+import li.cil.repack.org.luaj.vm2.LuaString;
+import li.cil.repack.org.luaj.vm2.LuaTable;
+import li.cil.repack.org.luaj.vm2.LuaValue;
 
 /**
  * Helper class to coerce values from lua to Java within the luajava library. 

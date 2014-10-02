@@ -19,17 +19,17 @@
 * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 * THE SOFTWARE.
 ******************************************************************************/
-package org.luaj.vm3.lib.jse;
+package li.cil.repack.org.luaj.vm2.lib.jse;
 
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 
-import org.luaj.vm3.LuaValue;
-import org.luaj.vm3.lib.BaseLib;
-import org.luaj.vm3.lib.LibFunction;
-import org.luaj.vm3.lib.ResourceFinder;
+import li.cil.repack.org.luaj.vm2.LuaValue;
+import li.cil.repack.org.luaj.vm2.lib.BaseLib;
+import li.cil.repack.org.luaj.vm2.lib.LibFunction;
+import li.cil.repack.org.luaj.vm2.lib.ResourceFinder;
 
 /** 
  * Subclass of {@link BaseLib} and {@link LibFunction} which implements the lua basic library functions
@@ -65,11 +65,11 @@ import org.luaj.vm3.lib.ResourceFinder;
  * @see {@link Globals.finder}
  * @see LibFunction
  * @see JsePlatform
- * @see org.luaj.vm3.lib.jme.JmePlatform
+ * @see li.cil.repack.org.luaj.vm2.lib.jme.JmePlatform
  * @see <a href="http://www.lua.org/manual/5.2/manual.html#6.1">Lua 5.2 Base Lib Reference</a>
  */
 
-public class JseBaseLib extends org.luaj.vm3.lib.BaseLib {
+public class JseBaseLib extends li.cil.repack.org.luaj.vm2.lib.BaseLib {
 
 	/** Extend the library loading to set the default value for {@link Globals.STDIN} */
 	public LuaValue call(LuaValue modname, LuaValue env) {
@@ -86,8 +86,8 @@ public class JseBaseLib extends org.luaj.vm3.lib.BaseLib {
 	 * It falls back to the base implementation that looks it up as a resource
 	 * in the class path if not found as a plain file. 
 	 *  
-	 * @see org.luaj.vm3.lib.BaseLib
-	 * @see org.luaj.vm3.lib.ResourceFinder
+	 * @see li.cil.repack.org.luaj.vm2.lib.BaseLib
+	 * @see li.cil.repack.org.luaj.vm2.lib.ResourceFinder
 	 * 
 	 * @param filename
 	 * @return InputStream, or null if not found. 

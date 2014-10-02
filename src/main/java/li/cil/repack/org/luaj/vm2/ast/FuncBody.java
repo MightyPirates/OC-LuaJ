@@ -19,7 +19,7 @@
 * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 * THE SOFTWARE.
 ******************************************************************************/
-package org.luaj.vm3.ast;
+package li.cil.repack.org.luaj.vm2.ast;
 
 public class FuncBody extends SyntaxElement {
 	public ParList parlist;

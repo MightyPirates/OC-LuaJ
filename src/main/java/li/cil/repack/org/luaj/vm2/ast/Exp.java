@@ -19,10 +19,10 @@
 * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 * THE SOFTWARE.
 ******************************************************************************/
-package org.luaj.vm3.ast;
+package li.cil.repack.org.luaj.vm2.ast;
 
-import org.luaj.vm3.Lua;
-import org.luaj.vm3.LuaValue;
+import li.cil.repack.org.luaj.vm2.Lua;
+import li.cil.repack.org.luaj.vm2.LuaValue;
 
 abstract public class Exp extends SyntaxElement {
 	abstract public void accept(Visitor visitor);

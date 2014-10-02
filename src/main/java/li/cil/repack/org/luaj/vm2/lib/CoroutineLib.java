@@ -19,13 +19,13 @@
 * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 * THE SOFTWARE.
 ******************************************************************************/
-package org.luaj.vm3.lib;
+package li.cil.repack.org.luaj.vm2.lib;
 
-import org.luaj.vm3.Globals;
-import org.luaj.vm3.LuaTable;
-import org.luaj.vm3.LuaThread;
-import org.luaj.vm3.LuaValue;
-import org.luaj.vm3.Varargs;
+import li.cil.repack.org.luaj.vm2.Globals;
+import li.cil.repack.org.luaj.vm2.LuaTable;
+import li.cil.repack.org.luaj.vm2.LuaThread;
+import li.cil.repack.org.luaj.vm2.LuaValue;
+import li.cil.repack.org.luaj.vm2.Varargs;
 
 /** 
  * Subclass of {@link LibFunction} which implements the lua standard {@code coroutine} 

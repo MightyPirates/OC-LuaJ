@@ -19,7 +19,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  ******************************************************************************/
-package org.luaj.vm3.lib;
+package li.cil.repack.org.luaj.vm2.lib;
 
 import java.io.InputStream;
 
@@ -47,8 +47,8 @@ public interface ResourceFinder {
 	/** 
 	 * Try to open a file, or return null if not found.
 	 * 
-	 * @see org.luaj.vm3.lib.BaseLib
-	 * @see org.luaj.vm3.lib.jse.JseBaseLib
+	 * @see li.cil.repack.org.luaj.vm2.lib.BaseLib
+	 * @see li.cil.repack.org.luaj.vm2.lib.jse.JseBaseLib
 	 * 
 	 * @param filename
 	 * @return InputStream, or null if not found. 

@@ -1,6 +1,6 @@
-package org.luaj.vm3;
+package li.cil.repack.org.luaj.vm2;
 
-import org.luaj.vm3.LuaTable.Slot;
+import li.cil.repack.org.luaj.vm2.LuaTable.Slot;
 
 class NonTableMetatable implements Metatable {
 

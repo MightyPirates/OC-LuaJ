@@ -19,19 +19,19 @@
 * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 * THE SOFTWARE.
 ******************************************************************************/
-package org.luaj.vm3.lib;
+package li.cil.repack.org.luaj.vm2.lib;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.text.DecimalFormat;
 
-import org.luaj.vm3.LuaClosure;
-import org.luaj.vm3.Buffer;
-import org.luaj.vm3.LuaString;
-import org.luaj.vm3.LuaTable;
-import org.luaj.vm3.LuaValue;
-import org.luaj.vm3.Varargs;
-import org.luaj.vm3.compiler.DumpState;
+import li.cil.repack.org.luaj.vm2.LuaClosure;
+import li.cil.repack.org.luaj.vm2.Buffer;
+import li.cil.repack.org.luaj.vm2.LuaString;
+import li.cil.repack.org.luaj.vm2.LuaTable;
+import li.cil.repack.org.luaj.vm2.LuaValue;
+import li.cil.repack.org.luaj.vm2.Varargs;
+import li.cil.repack.org.luaj.vm2.compiler.DumpState;
 
 /** 
  * Subclass of {@link LibFunction} which implements the lua standard {@code string} 

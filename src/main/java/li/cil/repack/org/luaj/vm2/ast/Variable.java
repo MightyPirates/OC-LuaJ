@@ -19,9 +19,9 @@
 * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 * THE SOFTWARE.
 ******************************************************************************/
-package org.luaj.vm3.ast;
+package li.cil.repack.org.luaj.vm2.ast;
 
-import org.luaj.vm3.LuaValue;
+import li.cil.repack.org.luaj.vm2.LuaValue;
 
 /** Variable is created lua name scopes, and is a named, lua variable that
  * either refers to a lua local, global, or upvalue storage location.  

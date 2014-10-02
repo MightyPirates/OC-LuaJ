@@ -19,16 +19,16 @@
 * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 * THE SOFTWARE.
 ******************************************************************************/
-package org.luaj.vm3.lib.jse;
+package li.cil.repack.org.luaj.vm2.lib.jse;
 
 import java.util.HashMap;
 import java.util.Map;
 
-import org.luaj.vm3.LuaDouble;
-import org.luaj.vm3.LuaInteger;
-import org.luaj.vm3.LuaString;
-import org.luaj.vm3.LuaUserdata;
-import org.luaj.vm3.LuaValue;
+import li.cil.repack.org.luaj.vm2.LuaDouble;
+import li.cil.repack.org.luaj.vm2.LuaInteger;
+import li.cil.repack.org.luaj.vm2.LuaString;
+import li.cil.repack.org.luaj.vm2.LuaUserdata;
+import li.cil.repack.org.luaj.vm2.LuaValue;
 
 /**
  * Helper class to coerce values from Java to lua within the luajava library. 
@@ -50,9 +50,9 @@ import org.luaj.vm3.LuaValue;
  * on {@link LuaValue} may be used:
  * <ul>
  * <li>{@link LuaValue#listOf(LuaValue[])}</li>
- * <li>{@link LuaValue#listOf(LuaValue[], org.luaj.vm3.Varargs)}</li>
+ * <li>{@link LuaValue#listOf(LuaValue[], li.cil.repack.org.luaj.vm2.Varargs)}</li>
  * <li>{@link LuaValue#tableOf(LuaValue[])}</li>
- * <li>{@link LuaValue#tableOf(LuaValue[], LuaValue[], org.luaj.vm3.Varargs)}</li>
+ * <li>{@link LuaValue#tableOf(LuaValue[], LuaValue[], li.cil.repack.org.luaj.vm2.Varargs)}</li>
  * </ul>
  * The method {@link CoerceJavaToLua#coerce(Object)} looks as the type and dimesioning 
  * of the argument and tries to guess the best fit for corrsponding lua scalar, 

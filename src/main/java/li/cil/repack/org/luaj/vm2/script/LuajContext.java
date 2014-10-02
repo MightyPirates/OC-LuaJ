@@ -19,7 +19,7 @@
 * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 * THE SOFTWARE.
 ******************************************************************************/
-package org.luaj.vm3.script;
+package li.cil.repack.org.luaj.vm2.script;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -31,8 +31,8 @@ import java.io.Writer;
 import javax.script.ScriptContext;
 import javax.script.SimpleScriptContext;
 
-import org.luaj.vm3.Globals;
-import org.luaj.vm3.lib.jse.JsePlatform;
+import li.cil.repack.org.luaj.vm2.Globals;
+import li.cil.repack.org.luaj.vm2.lib.jse.JsePlatform;
 
 /** 
  * Context for LuaScriptEngine execution which maintains its own Globals, 

@@ -19,17 +19,17 @@
 * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 * THE SOFTWARE.
 ******************************************************************************/
-package org.luaj.vm3.lib;
+package li.cil.repack.org.luaj.vm2.lib;
 
 import java.io.ByteArrayOutputStream;
 import java.io.EOFException;
 import java.io.IOException;
 
-import org.luaj.vm3.Globals;
-import org.luaj.vm3.LuaString;
-import org.luaj.vm3.LuaTable;
-import org.luaj.vm3.LuaValue;
-import org.luaj.vm3.Varargs;
+import li.cil.repack.org.luaj.vm2.Globals;
+import li.cil.repack.org.luaj.vm2.LuaString;
+import li.cil.repack.org.luaj.vm2.LuaTable;
+import li.cil.repack.org.luaj.vm2.LuaValue;
+import li.cil.repack.org.luaj.vm2.Varargs;
 
 /** 
  * Abstract base class extending {@link LibFunction} which implements the 
@@ -38,8 +38,8 @@ import org.luaj.vm3.Varargs;
  * It contains the implementation of the io library support that is common to
  * the JSE and JME platforms. 
  * In practice on of the concrete IOLib subclasses is chosen:  
- * {@link org.luaj.vm3.lib.jse.JseIoLib} for the JSE platform, and
- * {@link org.luaj.vm3.lib.jme.JmeIoLib} for the JME platform.
+ * {@link li.cil.repack.org.luaj.vm2.lib.jse.JseIoLib} for the JSE platform, and
+ * {@link li.cil.repack.org.luaj.vm2.lib.jme.JmeIoLib} for the JME platform.
  * <p>
  * The JSE implementation conforms almost completely to the C-based lua library, 
  * while the JME implementation follows closely except in the area of random-access files, 

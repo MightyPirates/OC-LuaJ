@@ -19,20 +19,20 @@
 * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 * THE SOFTWARE.
 ******************************************************************************/
-package org.luaj.vm3.compiler;
+package li.cil.repack.org.luaj.vm2.compiler;
 
 import java.util.Hashtable;
 
-import org.luaj.vm3.LocVars;
-import org.luaj.vm3.Lua;
-import org.luaj.vm3.LuaDouble;
-import org.luaj.vm3.LuaInteger;
-import org.luaj.vm3.LuaString;
-import org.luaj.vm3.LuaValue;
-import org.luaj.vm3.Prototype;
-import org.luaj.vm3.Upvaldesc;
-import org.luaj.vm3.compiler.LexState.ConsControl;
-import org.luaj.vm3.compiler.LexState.expdesc;
+import li.cil.repack.org.luaj.vm2.LocVars;
+import li.cil.repack.org.luaj.vm2.Lua;
+import li.cil.repack.org.luaj.vm2.LuaDouble;
+import li.cil.repack.org.luaj.vm2.LuaInteger;
+import li.cil.repack.org.luaj.vm2.LuaString;
+import li.cil.repack.org.luaj.vm2.LuaValue;
+import li.cil.repack.org.luaj.vm2.Prototype;
+import li.cil.repack.org.luaj.vm2.Upvaldesc;
+import li.cil.repack.org.luaj.vm2.compiler.LexState.ConsControl;
+import li.cil.repack.org.luaj.vm2.compiler.LexState.expdesc;
 
 public class FuncState extends LuaC {
 
