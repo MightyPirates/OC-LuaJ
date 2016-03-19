@@ -362,7 +362,11 @@ public class Print extends Lua {
 		ps.close();
 		ps = previous;
 		format(baos.toString(), 50);
+		printStack(stack, top, varargs);
+		ps.println();
+	}
 
+	public static void printStack(LuaValue[] stack, int top, Varargs varargs) {
 		// print stack
 		ps.print('[');
 		for (int i = 0; i < stack.length; i++) {
@@ -396,7 +400,6 @@ public class Print extends Lua {
 			ps.print(" | ");
 		}
 		ps.print(varargs);
-		ps.println();
 	}
 
 }

@@ -54,6 +54,7 @@ class JavaClass extends JavaInstance implements CoerceJavaToLua.Coercion {
 
 	Map fields;
 	Map methods;
+	Map innerclasses;
 
 	static JavaClass forClass(Class c) {
 		JavaClass j = (JavaClass) classes.get(c);
@@ -130,6 +131,21 @@ class JavaClass extends JavaInstance implements CoerceJavaToLua.Coercion {
 			methods = map;
 		}
 		return (LuaValue) methods.get(key);
+	}
+
+	Class getInnerClass(LuaValue key) {
+		if (innerclasses == null) {
+			Map m = new HashMap();
+			Class[] c = ((Class) m_instance).getClasses();
+			for (int i = 0; i < c.length; i++) {
+				Class ci = c[i];
+				String name = ci.getName();
+				String stub = name.substring(Math.max(name.lastIndexOf('$'), name.lastIndexOf('.')) + 1);
+				m.put(LuaValue.valueOf(stub), ci);
+			}
+			innerclasses = m;
+		}
+		return (Class) innerclasses.get(key);
 	}
 
 	public LuaValue getConstructor() {

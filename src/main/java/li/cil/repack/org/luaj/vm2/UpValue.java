@@ -64,7 +64,7 @@ public final class UpValue {
 
 	/**
 	 * Set the value of the upvalue
-	 * @param the {@link LuaValue} to set it to
+	 * @param value the {@link LuaValue} to set it to
 	 */
 	public final void setValue(LuaValue value) {
 		array[index] = value;

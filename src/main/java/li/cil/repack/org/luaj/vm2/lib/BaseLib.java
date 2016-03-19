@@ -38,18 +38,18 @@ import li.cil.repack.org.luaj.vm2.Varargs;
  * <p>
  * This contains all library functions listed as "basic functions" in the lua documentation for JME. 
  * The functions dofile and loadfile use the 
- * {@link #finder} instance to find resource files.
+ * {@link Globals#finder} instance to find resource files.
  * Since JME has no file system by default, {@link BaseLib} implements 
  * {@link ResourceFinder} using {@link Class#getResource(String)}, 
  * which is the closest equivalent on JME.     
  * The default loader chain in {@link PackageLib} will use these as well.
  * <p>  
  * To use basic library functions that include a {@link ResourceFinder} based on 
- * directory lookup, use {@link JseBaseLib} instead. 
+ * directory lookup, use {@link li.cil.repack.org.luaj.vm2.lib.jse.JseBaseLib} instead.
  * <p>
  * Typically, this library is included as part of a call to either 
- * {@link JsePlatform#standardGlobals()} or
- * {@link JmePlatform#standardGlobals()}
+ * {@link li.cil.repack.org.luaj.vm2.lib.jse.JsePlatform#standardGlobals()} or
+ * {@link li.cil.repack.org.luaj.vm2.lib.jme.JmePlatform#standardGlobals()}
  * <pre> {@code
  * Globals globals = JsePlatform.standardGlobals();
  * globals.get("print").call(LuaValue.valueOf("hello, world"));
@@ -67,18 +67,23 @@ import li.cil.repack.org.luaj.vm2.Varargs;
  * and loaded into the globals table. 
  * <p>
  * This is a direct port of the corresponding library in C.
- * @see JseBaseLib
+ * @see li.cil.repack.org.luaj.vm2.lib.jse.JseBaseLib
  * @see ResourceFinder
- * @see #finder
+ * @see Globals#finder
  * @see LibFunction
- * @see JsePlatform
- * @see JmePlatform
+ * @see li.cil.repack.org.luaj.vm2.lib.jse.JsePlatform
+ * @see li.cil.repack.org.luaj.vm2.lib.jme.JmePlatform
  * @see <a href="http://www.lua.org/manual/5.2/manual.html#6.1">Lua 5.2 Base Lib Reference</a>
  */
 public class BaseLib extends TwoArgFunction implements ResourceFinder {
 
 	Globals globals;
 
+	/** Perform one-time initialization on the library by adding base functions
+	 * to the supplied environment, and returning it as the return value.
+	 * @param modname the module name supplied if this is loaded via 'require'.
+	 * @param env the environment to load into, which must be a Globals instance.
+	 */
 	public LuaValue call(LuaValue modname, LuaValue env) {
 		globals = env.checkglobals();
 		globals.finder = this;
@@ -135,31 +140,31 @@ public class BaseLib extends TwoArgFunction implements ResourceFinder {
 		public Varargs invoke(Varargs args) {
 			String s = args.optjstring(1, "collect");
 			int ex = args.optint(2, 0);
-			if ( s.equals("stop") ) {
+			if (s.equals("stop")) {
 				return ZERO; // unsupported
-			} else if( s.equals("restart") ) {
+			} else if (s.equals("restart")) {
 				return ZERO; // unsupported
-			} else if( s.equals("collect") ) {
+			} else if (s.equals("collect")) {
 				System.gc();
 				return ZERO;
-			} else if( s.equals("count") ) {
+			} else if (s.equals("count")) {
 				Runtime rt = Runtime.getRuntime();
 				long used = rt.totalMemory() - rt.freeMemory();
 				return varargsOf(valueOf(used / 1024.), valueOf(used % 1024));
-			} else if( s.equals("step") ) {
+			} else if (s.equals("step")) {
 				System.gc();
 				return TRUE;
-			} else if( s.equals("setpause") ) {
+			} else if (s.equals("setpause")) {
 				return ZERO; // TODO: Store this, despite no effect?
-			} else if( s.equals("setstepmul") ) {
+			} else if (s.equals("setstepmul")) {
 				return ZERO; // TODO: Store this, despite no effect?
-			} else if( s.equals("setmajorinc") ) {
+			} else if (s.equals("setmajorinc")) {
 				return ZERO; // TODO: Store this, despite no effect?
-			} else if( s.equals("isrunning") ) {
+			} else if (s.equals("isrunning")) {
 				return TRUE;
-			} else if( s.equals("generational") ) {
+			} else if (s.equals("generational")) {
 				return ZERO; // unsupported
-			} else if( s.equals("incremental") ) {
+			} else if (s.equals("incremental")) {
 				return ZERO; // unsupported
 			} else {
 				this.argerror(1, "invalid option '" + s + "'");
@@ -181,7 +186,7 @@ public class BaseLib extends TwoArgFunction implements ResourceFinder {
 	// "error", // ( message [,level] ) -> ERR
 	static final class error extends TwoArgFunction {
 		public LuaValue call(LuaValue arg1, LuaValue arg2) {
-			throw new LuaError(arg1.isnil() ? null : arg1.tojstring(), arg2.optint(1));
+			throw arg1.isnil() ? new LuaError(null, arg2.optint(1)) : arg1.isstring() ? new LuaError(arg1.tojstring(), arg2.optint(1)) : new LuaError(arg1);
 		}
 	}
 
@@ -229,8 +234,8 @@ public class BaseLib extends TwoArgFunction implements ResourceFinder {
 			try {
 				return varargsOf(TRUE, func.invoke(args.subargs(2)));
 			} catch (LuaError le) {
-				final String m = le.getMessage();
-				return varargsOf(FALSE, m != null ? valueOf(m) : NIL);
+				final LuaValue m = le.getMessageObject();
+				return varargsOf(FALSE, m != null ? m : NIL);
 			} catch (Exception e) {
 				final String m = e.getMessage();
 				return varargsOf(FALSE, valueOf(m != null ? m : e.toString()));
@@ -336,7 +341,7 @@ public class BaseLib extends TwoArgFunction implements ResourceFinder {
 		}
 
 		public LuaValue call(LuaValue table, LuaValue metatable) {
-			final LuaValue mt0 = table.getmetatable();
+			final LuaValue mt0 = table.checktable().getmetatable();
 			if (mt0 != null && !mt0.rawget(METATABLE).isnil())
 				error("cannot change a protected metatable");
 			return table.setmetatable(metatable.isnil() ? null : metatable.checktable());
@@ -391,8 +396,8 @@ public class BaseLib extends TwoArgFunction implements ResourceFinder {
 				try {
 					return varargsOf(TRUE, args.arg1().invoke(args.subargs(3)));
 				} catch (LuaError le) {
-					final String m = le.getMessage();
-					return varargsOf(FALSE, m != null ? valueOf(m) : NIL);
+					final LuaValue m = le.getMessageObject();
+					return varargsOf(FALSE, m != null ? m : NIL);
 				} catch (Exception e) {
 					final String m = e.getMessage();
 					return varargsOf(FALSE, valueOf(m != null ? m : e.toString()));

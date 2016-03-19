@@ -34,7 +34,7 @@ import li.cil.repack.org.luaj.vm2.Upvaldesc;
 import li.cil.repack.org.luaj.vm2.compiler.LexState.ConsControl;
 import li.cil.repack.org.luaj.vm2.compiler.LexState.expdesc;
 
-public class FuncState extends LuaC {
+public class FuncState extends Constants {
 
 	static class BlockCnt {
 		BlockCnt previous; /* chain */
@@ -49,7 +49,7 @@ public class FuncState extends LuaC {
 	Hashtable h; /* table to find (and reuse) elements in `k' */
 	FuncState prev; /* enclosing function */
 	LexState ls; /* lexical state */
-	LuaC L; /* compiler being invoked */
+	LuaC.CompileState L; /* compiler being invoked */
 	BlockCnt bl; /* chain of current blocks */
 	int pc; /* next position to code (equivalent to `ncode') */
 	int lasttarget; /* `pc' of last `jump target' */
@@ -300,7 +300,7 @@ public class FuncState extends LuaC {
 		this.codeABC(OP_RETURN, first, nret + 1, 0);
 	}
 
-	int condjump(int /* OpCode */op, int A, int B, int C) {
+	int condjump(int /* OpCode */ op, int A, int B, int C) {
 		this.codeABC(op, A, B, C);
 		return this.jump();
 	}
@@ -908,7 +908,7 @@ public class FuncState extends LuaC {
 		}
 	}
 
-	void codecomp(int /* OpCode */op, int cond, expdesc e1, expdesc e2) {
+	void codecomp(int /* OpCode */ op, int cond, expdesc e1, expdesc e2) {
 		int o1 = this.exp2RK(e1);
 		int o2 = this.exp2RK(e2);
 		this.freeexp(e2);
@@ -924,7 +924,7 @@ public class FuncState extends LuaC {
 		e1.k = LexState.VJMP;
 	}
 
-	void prefix(int /* UnOpr */op, expdesc e, int line) {
+	void prefix(int /* UnOpr */ op, expdesc e, int line) {
 		expdesc e2 = new expdesc();
 		e2.init(LexState.VKNUM, 0);
 		switch (op) {
@@ -950,7 +950,7 @@ public class FuncState extends LuaC {
 		}
 	}
 
-	void infix(int /* BinOpr */op, expdesc v) {
+	void infix(int /* BinOpr */ op, expdesc v) {
 		switch (op) {
 		case LexState.OPR_AND: {
 			this.goiftrue(v);

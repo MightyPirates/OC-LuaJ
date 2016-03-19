@@ -21,6 +21,7 @@
 ******************************************************************************/
 package li.cil.repack.org.luaj.vm2.lib.jse;
 
+import li.cil.repack.org.luaj.vm2.Globals;
 import li.cil.repack.org.luaj.vm2.LuaValue;
 import li.cil.repack.org.luaj.vm2.lib.LibFunction;
 
@@ -29,10 +30,10 @@ import li.cil.repack.org.luaj.vm2.lib.LibFunction;
  * library. 
  * <p> 
  * It contains all lua math functions, including those not available on the JME platform.  
- * See {@link org.luaj.lib.MathLib} for the exception list.  
+ * See {@link li.cil.repack.org.luaj.vm2.lib.MathLib} for the exception list.
  * <p>
  * Typically, this library is included as part of a call to 
- * {@link JsePlatform#standardGlobals()}
+ * {@link li.cil.repack.org.luaj.vm2.lib.jse.JsePlatform#standardGlobals()}
  * <pre> {@code
  * Globals globals = JsePlatform.standardGlobals();
  * System.out.println( globals.get("math").get("sqrt").call( LuaValue.valueOf(2) ) );
@@ -52,15 +53,23 @@ import li.cil.repack.org.luaj.vm2.lib.LibFunction;
  * <p>
  * This has been implemented to match as closely as possible the behavior in the corresponding library in C.
  * @see LibFunction
- * @see JsePlatform
+ * @see li.cil.repack.org.luaj.vm2.lib.jse.JsePlatform
  * @see li.cil.repack.org.luaj.vm2.lib.jme.JmePlatform
- * @see JseMathLib
+ * @see li.cil.repack.org.luaj.vm2.lib.jse.JseMathLib
  * @see <a href="http://www.lua.org/manual/5.2/manual.html#6.6">Lua 5.2 Math Lib Reference</a>
  */
 public class JseMathLib extends li.cil.repack.org.luaj.vm2.lib.MathLib {
 
 	public JseMathLib() {}
 
+	/** Perform one-time initialization on the library by creating a table
+	 * containing the library functions, adding that table to the supplied environment,
+	 * adding the table to package.loaded, and returning table as the return value.
+	 * <P>Specifically, adds all library functions that can be implemented directly
+	 * in JSE but not JME: acos, asin, atan, atan2, cosh, exp, log, pow, sinh, and tanh.
+	 * @param modname the module name supplied if this is loaded via 'require'.
+	 * @param env the environment to load into, which must be a Globals instance.
+	 */
 	public LuaValue call(LuaValue modname, LuaValue env) {
 		super.call(modname, env);
 		LuaValue math = env.get("math");

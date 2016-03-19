@@ -46,11 +46,12 @@ import li.cil.repack.org.luaj.vm2.Varargs;
  * To do this, it must maintain a separate stack of calls to {@link LuaClosure} and {@link LibFunction} 
  * instances.  
  * Especially when lua-to-java bytecode compiling is being used
- * via a {@link LuaCompiler} such as {@link LuaJC}, 
+ * via a {@link li.cil.repack.org.luaj.vm2.Globals.Compiler} such as {@link li.cil.repack.org.luaj.vm2.luajc.LuaJC},
  * this cannot be done in all cases.  
  * <p> 
  * Typically, this library is included as part of a call to either 
- * {@link JsePlatform#debugGlobals()} or {@link JmePlatform#debugGlobals()}
+ * {@link li.cil.repack.org.luaj.vm2.lib.jse.JsePlatform#debugGlobals()} or
+ * {@link li.cil.repack.org.luaj.vm2.lib.jme.JmePlatform#debugGlobals()}
  * <pre> {@code
  * Globals globals = JsePlatform.debugGlobals();
  * System.out.println( globals.get("debug").get("traceback").call() );
@@ -66,9 +67,13 @@ import li.cil.repack.org.luaj.vm2.Varargs;
  * System.out.println( globals.get("debug").get("traceback").call() );
  * } </pre>
  * <p>
+ * This library exposes the entire state of lua code, and provides method to see and modify
+ * all underlying lua values within a Java VM so should not be exposed to client code
+ * in a shared server environment.
+ *
  * @see LibFunction
- * @see JsePlatform
- * @see JmePlatform
+ * @see li.cil.repack.org.luaj.vm2.lib.jse.JsePlatform
+ * @see li.cil.repack.org.luaj.vm2.lib.jme.JmePlatform
  * @see <a href="http://www.lua.org/manual/5.2/manual.html#6.10">Lua 5.2 Debug Lib Reference</a>
  */
 public class DebugLib extends TwoArgFunction {
@@ -107,6 +112,12 @@ public class DebugLib extends TwoArgFunction {
 
 	Globals globals;
 
+	/** Perform one-time initialization on the library by creating a table
+	 * containing the library functions, adding that table to the supplied environment,
+	 * adding the table to package.loaded, and returning table as the return value.
+	 * @param modname the module name supplied if this is loaded via 'require'.
+	 * @param env the environment to load into, which must be a Globals instance.
+	 */
 	public LuaValue call(LuaValue modname, LuaValue env) {
 		globals = env.checkglobals();
 		globals.debuglib = this;
@@ -143,7 +154,8 @@ public class DebugLib extends TwoArgFunction {
 	final class gethook extends VarArgFunction {
 		public Varargs invoke(Varargs args) {
 			LuaThread t = args.narg() > 0 ? args.checkthread(1) : globals.running;
-			return varargsOf(t.hookfunc != null ? t.hookfunc : NIL, valueOf((t.hookcall ? "c" : "") + (t.hookline ? "l" : "") + (t.hookrtrn ? "r" : "")), valueOf(t.hookcount));
+			LuaThread.State s = t.state;
+			return varargsOf(s.hookfunc != null ? s.hookfunc : NIL, valueOf((s.hookcall ? "c" : "") + (s.hookline ? "l" : "") + (s.hookrtrn ? "r" : "")), valueOf(s.hookcount));
 		}
 	}
 
@@ -282,11 +294,12 @@ public class DebugLib extends TwoArgFunction {
 					rtrn = true;
 					break;
 				}
-			t.hookfunc = func;
-			t.hookcall = call;
-			t.hookline = line;
-			t.hookcount = count;
-			t.hookrtrn = rtrn;
+			LuaThread.State s = t.state;
+			s.hookfunc = func;
+			s.hookcall = call;
+			s.hookline = line;
+			s.hookcount = count;
+			s.hookrtrn = rtrn;
 			return NONE;
 		}
 	}
@@ -408,66 +421,67 @@ public class DebugLib extends TwoArgFunction {
 	}
 
 	public void onCall(LuaFunction f) {
-		LuaThread t = globals.running;
-		if (t.inhook)
+		LuaThread.State s = globals.running.state;
+		if (s.inhook)
 			return;
 		callstack().onCall(f);
-		if (t.hookcall && t.hookfunc != null)
-			callHook(CALL, NIL);
+		if (s.hookcall)
+			callHook(s, CALL, NIL);
 	}
 
 	public void onCall(LuaClosure c, Varargs varargs, LuaValue[] stack) {
-		LuaThread t = globals.running;
-		if (t.inhook)
+		LuaThread.State s = globals.running.state;
+		if (s.inhook)
 			return;
 		callstack().onCall(c, varargs, stack);
-		if (t.hookcall && t.hookfunc != null)
-			callHook(CALL, NIL);
+		if (s.hookcall)
+			callHook(s, CALL, NIL);
 	}
 
 	public void onInstruction(int pc, Varargs v, int top) {
-		LuaThread t = globals.running;
-		if (t.inhook)
+		LuaThread.State s = globals.running.state;
+		if (s.inhook)
 			return;
 		callstack().onInstruction(pc, v, top);
-		if (t.hookfunc == null)
+		if (s.hookfunc == null)
 			return;
-		if (t.hookcount > 0)
-			if (++t.bytecodes % t.hookcount == 0)
-				callHook(COUNT, NIL);
-		if (t.hookline) {
+		if (s.hookcount > 0)
+			if (++s.bytecodes % s.hookcount == 0)
+				callHook(s, COUNT, NIL);
+		if (s.hookline) {
 			int newline = callstack().currentline();
-			if (newline != t.lastline) {
-				t.lastline = newline;
-				callHook(LINE, LuaValue.valueOf(newline));
+			if (newline != s.lastline) {
+				s.lastline = newline;
+				callHook(s, LINE, LuaValue.valueOf(newline));
 			}
 		}
 	}
 
 	public void onReturn() {
-		LuaThread t = globals.running;
-		if (t.inhook)
+		LuaThread.State s = globals.running.state;
+		if (s.inhook)
 			return;
 		callstack().onReturn();
-		if (t.hookcall && t.hookfunc != null)
-			callHook(RETURN, NIL);
+		if (s.hookrtrn)
+			callHook(s, RETURN, NIL);
 	}
 
 	public String traceback(int level) {
 		return callstack().traceback(level);
 	}
 
-	void callHook(LuaValue type, LuaValue arg) {
-		LuaThread t = globals.running;
-		t.inhook = true;
+	void callHook(LuaThread.State s, LuaValue type, LuaValue arg) {
+		if (s.inhook || s.hookfunc == null)
+			return;
+		s.inhook = true;
 		try {
-			t.hookfunc.call(type, arg);
+			s.hookfunc.call(type, arg);
 		} catch (LuaError e) {
 			throw e;
 		} catch (RuntimeException e) {
 			throw new LuaError(e);
 		} finally {
-			t.inhook = false;
+			s.inhook = false;
 		}
 	}
 
@@ -521,11 +535,11 @@ public class DebugLib extends TwoArgFunction {
 
 		CallStack() {}
 
-		int currentline() {
+		synchronized int currentline() {
 			return calls > 0 ? frame[calls - 1].currentline() : -1;
 		}
 
-		private CallFrame pushcall() {
+		private synchronized CallFrame pushcall() {
 			if (calls >= frame.length) {
 				int n = Math.max(4, frame.length * 3 / 2);
 				CallFrame[] f = new CallFrame[n];
@@ -539,21 +553,22 @@ public class DebugLib extends TwoArgFunction {
 			return frame[calls++];
 		}
 
-		final void onCall(LuaFunction function) {
+		final synchronized void onCall(LuaFunction function) {
 			pushcall().set(function);
 		}
 
-		final void onCall(LuaClosure function, Varargs varargs, LuaValue[] stack) {
+		final synchronized void onCall(LuaClosure function, Varargs varargs, LuaValue[] stack) {
 			pushcall().set(function, varargs, stack);
 		}
 
-		final void onReturn() {
+		final synchronized void onReturn() {
 			if (calls > 0)
 				frame[--calls].reset();
 		}
 
-		final void onInstruction(int pc, Varargs v, int top) {
-			frame[calls - 1].instr(pc, v, top);
+		final synchronized void onInstruction(int pc, Varargs v, int top) {
+			if (calls > 0)
+				frame[calls - 1].instr(pc, v, top);
 		}
 
 		/**
@@ -561,7 +576,7 @@ public class DebugLib extends TwoArgFunction {
 		 * @param level
 		 * @return String containing the traceback.
 		 */
-		String traceback(int level) {
+		synchronized String traceback(int level) {
 			StringBuffer sb = new StringBuffer();
 			sb.append("stack traceback:");
 			for (DebugLib.CallFrame c; (c = getCallFrame(level++)) != null;) {
@@ -586,20 +601,20 @@ public class DebugLib extends TwoArgFunction {
 			return sb.toString();
 		}
 
-		DebugLib.CallFrame getCallFrame(int level) {
+		synchronized DebugLib.CallFrame getCallFrame(int level) {
 			if (level < 1 || level > calls)
 				return null;
 			return frame[calls - level];
 		}
 
-		DebugLib.CallFrame findCallFrame(LuaValue func) {
+		synchronized DebugLib.CallFrame findCallFrame(LuaValue func) {
 			for (int i = 1; i <= calls; ++i)
 				if (frame[calls - i].f == func)
 					return frame[i];
 			return null;
 		}
 
-		DebugInfo auxgetinfo(String what, LuaFunction f, CallFrame ci) {
+		synchronized DebugInfo auxgetinfo(String what, LuaFunction f, CallFrame ci) {
 			DebugInfo ar = new DebugInfo();
 			for (int i = 0, n = what.length(); i < n; ++i) {
 				switch (what.charAt(i)) {
@@ -771,7 +786,7 @@ public class DebugLib extends TwoArgFunction {
 			return getobjname(p, pc, Lua.GETARG_A(i));
 		case Lua.OP_TFORCALL: /* for iterator */
 			return new NameWhat("(for iterator)", "(for iterator");
-			/* all other instructions can call only through metamethods */
+		/* all other instructions can call only through metamethods */
 		case Lua.OP_SELF:
 		case Lua.OP_GETTABUP:
 		case Lua.OP_GETTABLE:
@@ -847,7 +862,7 @@ public class DebugLib extends TwoArgFunction {
 				int k = Lua.GETARG_C(i); /* key index */
 				int t = Lua.GETARG_B(i); /* table index */
 				LuaString vn = (Lua.GET_OPCODE(i) == Lua.OP_GETTABLE) /* name of indexed variable */
-				? p.getlocalname(t + 1, pc) : (t < p.upvalues.length ? p.upvalues[t].name : QMARK);
+						? p.getlocalname(t + 1, pc) : (t < p.upvalues.length ? p.upvalues[t].name : QMARK);
 				name = kname(p, k);
 				return new NameWhat(name.tojstring(), vn != null && vn.eq_b(ENV) ? "global" : "field");
 			}

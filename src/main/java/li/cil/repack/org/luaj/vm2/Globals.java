@@ -28,6 +28,7 @@ import java.io.Reader;
 
 import li.cil.repack.org.luaj.vm2.lib.BaseLib;
 import li.cil.repack.org.luaj.vm2.lib.DebugLib;
+import li.cil.repack.org.luaj.vm2.lib.IoLib;
 import li.cil.repack.org.luaj.vm2.lib.PackageLib;
 import li.cil.repack.org.luaj.vm2.lib.ResourceFinder;
 
@@ -37,7 +38,8 @@ import li.cil.repack.org.luaj.vm2.lib.ResourceFinder;
  * 
  * <h3>Constructing and Initializing Instances</h3>
  * Typically, this is constructed indirectly by a call to 
- * {@link JsePlatform.standardGlobasl()} or {@link JmePlatform.standardGlobals()}, 
+ * {@link li.cil.repack.org.luaj.vm2.lib.jse.JsePlatform#standardGlobals()} or
+ * {@link li.cil.repack.org.luaj.vm2.lib.jme.JmePlatform#standardGlobals()},
  * and then used to load lua scripts for execution as in the following example. 
  * <pre> {@code
  * Globals globals = JsePlatform.standardGlobals();
@@ -64,30 +66,30 @@ import li.cil.repack.org.luaj.vm2.lib.ResourceFinder;
  * <ul>
  * <li>find the resource using the platform's {@link ResourceFinder}
  * <li>compile lua to lua bytecode using {@link Compiler}
- * <li>load lua bytecode to a {@link LuaPrototpye} using {@link Undumper}
+ * <li>load lua bytecode to a {@link Prototype} using {@link Undumper}
  * <li>construct {@link LuaClosure} from {@link Prototype} with {@link Globals} using {@link Loader}
  * </ul>
  * <p>
- * There are alternate flows when the direct lua-to-Java bytecode compiling {@link LuaJC} is used.
+ * There are alternate flows when the direct lua-to-Java bytecode compiling {@link li.cil.repack.org.luaj.vm2.luajc.LuaJC} is used.
  * <ul>
  * <li>compile lua to lua bytecode using {@link Compiler} or load precompiled code using {@link Undumper}
- * <li>convert lua bytecode to equivalent Java bytecode using {@link LuaJC} that implements {@link Loader} directly
+ * <li>convert lua bytecode to equivalent Java bytecode using {@link li.cil.repack.org.luaj.vm2.luajc.LuaJC} that implements {@link Loader} directly
  * </ul>
  * 
  * <h3>Java Field</h3>
  * Certain public fields are provided that contain the current values of important global state:
  * <ul>
- * <li>{@link STDIN} Current value for standard input in the laaded IoLib, if any.
- * <li>{@link STDOUT} Current value for standard output in the loaded IoLib, if any.
- * <li>{@link STDERR} Current value for standard error in the loaded IoLib, if any.
- * <li>{@link finder} Current loaded {@link ResourceFinder}, if any.
- * <li>{@link compiler} Current loaded {@link Compiler}, if any.
- * <li>{@link undumper} Current loaded {@link Undumper}, if any.
- * <li>{@link loader} Current loaded {@link Loader}, if any.
+ * <li>{@link #STDIN} Current value for standard input in the laaded {@link IoLib}, if any.
+ * <li>{@link #STDOUT} Current value for standard output in the loaded {@link IoLib}, if any.
+ * <li>{@link #STDERR} Current value for standard error in the loaded {@link IoLib}, if any.
+ * <li>{@link #finder} Current loaded {@link ResourceFinder}, if any.
+ * <li>{@link #compiler} Current loaded {@link Compiler}, if any.
+ * <li>{@link #undumper} Current loaded {@link Undumper}, if any.
+ * <li>{@link #loader} Current loaded {@link Loader}, if any.
  * </ul>
  * 
  * <h3>Lua Environment Variables</h3>
- * When using {@link JsePlatform} or {@link JmePlatform}, 
+ * When using {@link li.cil.repack.org.luaj.vm2.lib.jse.JsePlatform} or {@link li.cil.repack.org.luaj.vm2.lib.jme.JmePlatform},
  * these environment variables are created within the Globals.
  * <ul>
  * <li>"_G" Pointer to this Globals.
@@ -107,8 +109,8 @@ import li.cil.repack.org.luaj.vm2.lib.ResourceFinder;
  * @see Loader
  * @see Undumper
  * @see ResourceFinder
- * @see LuaC
- * @see LuaJC
+ * @see li.cil.repack.org.luaj.vm2.compiler.LuaC
+ * @see li.cil.repack.org.luaj.vm2.luajc.LuaJC
  */
 public class Globals extends LuaTable {
 
@@ -203,18 +205,54 @@ public class Globals extends LuaTable {
 		return load(new StrReader(script), script);
 	}
 
+	/** Convenience function to load a string value as a script with a custom environment.
+	 * Must be lua source.
+	 * @param script Contents of a lua script, such as "print 'hello, world.'"
+	 * @param chunkname Name that will be used within the chunk as the source.
+	 * @param environment LuaTable to be used as the environment for the loaded function.
+	 * @return LuaValue that may be executed via .call(), .invoke(), or .method() calls.
+	 * @throws LuaError if the script could not be compiled.
+	 */
+	public LuaValue load(String script, String chunkname, LuaTable environment) {
+		return load(new StrReader(script), chunkname, environment);
+	}
+
 	/** Load the content form a reader as a text file.  Must be lua source. 
 	 * The source is converted to UTF-8, so any characters appearing in quoted literals 
-	 * above the range 128 will be converted into multiple bytes.  */
+	 * above the range 128 will be converted into multiple bytes.
+	 * @param reader Reader containing text of a lua script, such as "print 'hello, world.'"
+	 * @param chunkname Name that will be used within the chunk as the source.
+	 * @return LuaValue that may be executed via .call(), .invoke(), or .method() calls.
+	 * @throws LuaError if the script could not be compiled.
+	 */
 	public LuaValue load(Reader reader, String chunkname) {
 		return load(new UTF8Stream(reader), chunkname, "t", this);
 	}
 
-	/** Load the content form an input stream as a binary chunk or text file. */
-	public LuaValue load(InputStream is, String chunkname, String mode, LuaValue env) {
+	/** Load the content form a reader as a text file, supplying a custom environment.
+	 * Must be lua source. The source is converted to UTF-8, so any characters
+	 * appearing in quoted literals above the range 128 will be converted into
+	 * multiple bytes.
+	 * @param reader Reader containing text of a lua script, such as "print 'hello, world.'"
+	 * @param chunkname Name that will be used within the chunk as the source.
+	 * @param environment LuaTable to be used as the environment for the loaded function.
+	 * @return LuaValue that may be executed via .call(), .invoke(), or .method() calls.
+	 * @throws LuaError if the script could not be compiled.
+	 */
+	public LuaValue load(Reader reader, String chunkname, LuaTable environment) {
+		return load(new UTF8Stream(reader), chunkname, "t", environment);
+	}
+
+	/** Load the content form an input stream as a binary chunk or text file.
+	 * @param is InputStream containing a lua script or compiled lua"
+	 * @param chunkname Name that will be used within the chunk as the source.
+	 * @param mode String containing 'b' or 't' or both to control loading as binary or text or either.
+	 * @param environment LuaTable to be used as the environment for the loaded function.
+	 * */
+	public LuaValue load(InputStream is, String chunkname, String mode, LuaValue environment) {
 		try {
 			Prototype p = loadPrototype(is, chunkname, mode);
-			return loader.load(p, chunkname, env);
+			return loader.load(p, chunkname, environment);
 		} catch (LuaError l) {
 			throw l;
 		} catch (Exception e) {
@@ -225,6 +263,9 @@ public class Globals extends LuaTable {
 	/** Load lua source or lua binary from an input stream into a Prototype. 
 	 * The InputStream is either a binary lua chunk starting with the lua binary chunk signature, 
 	 * or a text input file.  If it is a text input file, it is interpreted as a UTF-8 byte sequence.  
+	 * @param is Input stream containing a lua script or compiled lua"
+	 * @param chunkname Name that will be used within the chunk as the source.
+	 * @param mode String containing 'b' or 't' or both to control loading as binary or text or either.
 	 */
 	public Prototype loadPrototype(InputStream is, String chunkname, String mode) throws IOException {
 		if (mode.indexOf('b') >= 0) {

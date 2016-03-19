@@ -58,8 +58,8 @@ import li.cil.repack.org.luaj.vm2.Varargs;
  * For example, the following code will implement a library called "hyperbolic" 
  * with two functions, "sinh", and "cosh":
  <pre> {@code 
- * import org.luaj.vm2.LuaValue;
- * import org.luaj.vm2.lib.*;
+ * import li.cil.repack.org.luaj.vm2.LuaValue;
+ * import li.cil.repack.org.luaj.vm2.lib.*;
  * 
  * public class hyperbolic extends TwoArgFunction {
  *

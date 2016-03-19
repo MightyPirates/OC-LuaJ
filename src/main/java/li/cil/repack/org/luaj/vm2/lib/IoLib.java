@@ -46,14 +46,14 @@ import li.cil.repack.org.luaj.vm2.Varargs;
  * which are difficult to support properly on JME. 
  * <p> 
  * Typically, this library is included as part of a call to either 
- * {@link JsePlatform#standardGlobals()} or {@link JmePlatform#standardGlobals()}
+ * {@link li.cil.repack.org.luaj.vm2.lib.jse.JsePlatform#standardGlobals()} or {@link li.cil.repack.org.luaj.vm2.lib.jme.JmePlatform#standardGlobals()}
  * <pre> {@code
  * Globals globals = JsePlatform.standardGlobals();
  * globals.get("io").get("write").call(LuaValue.valueOf("hello, world\n"));
  * } </pre>
- * In this example the platform-specific {@link JseIoLib} library will be loaded, which will include
- * the base functionality provided by this class, whereas the {@link JsePlatform} would load the 
- * {@link JseIoLib}.
+ * In this example the platform-specific {@link li.cil.repack.org.luaj.vm2.lib.jse.JseIoLib} library will be loaded, which will include
+ * the base functionality provided by this class, whereas the {@link li.cil.repack.org.luaj.vm2.lib.jse.JsePlatform} would load the
+ * {@link li.cil.repack.org.luaj.vm2.lib.jse.JseIoLib}.
  * <p>
  * To instantiate and use it directly, 
  * link it into your globals table via {@link LuaValue#load(LuaValue)} using code such as:
@@ -67,10 +67,10 @@ import li.cil.repack.org.luaj.vm2.Varargs;
  * <p>
  * This has been implemented to match as closely as possible the behavior in the corresponding library in C.
  * @see LibFunction
- * @see JsePlatform
- * @see JmePlatform
- * @see JseIoLib
- * @see JmeIoLib
+ * @see li.cil.repack.org.luaj.vm2.lib.jse.JsePlatform
+ * @see li.cil.repack.org.luaj.vm2.lib.jme.JmePlatform
+ * @see li.cil.repack.org.luaj.vm2.lib.jse.JseIoLib
+ * @see li.cil.repack.org.luaj.vm2.lib.jme.JmeIoLib
  * @see <a href="http://www.lua.org/manual/5.1/manual.html#5.7">http://www.lua.org/manual/5.1/manual.html#5.7</a>
  */
 abstract public class IoLib extends TwoArgFunction {
@@ -567,7 +567,7 @@ abstract public class IoLib extends TwoArgFunction {
 		int r;
 		if ((r = f.read(b, 0, b.length)) < 0)
 			return NIL;
-		return LuaString.valueOf(b, 0, r);
+		return LuaString.valueUsing(b, 0, r);
 	}
 
 	public static LuaValue freaduntil(File f, boolean lineonly) throws IOException {
@@ -593,7 +593,7 @@ abstract public class IoLib extends TwoArgFunction {
 		} catch (EOFException e) {
 			c = -1;
 		}
-		return (c < 0 && baos.size() == 0) ? (LuaValue) NIL : (LuaValue) LuaString.valueOf(baos.toByteArray());
+		return (c < 0 && baos.size() == 0) ? (LuaValue) NIL : (LuaValue) LuaString.valueUsing(baos.toByteArray());
 	}
 
 	public static LuaValue freadline(File f) throws IOException {

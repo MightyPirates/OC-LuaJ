@@ -21,11 +21,29 @@
 ******************************************************************************/
 package li.cil.repack.org.luaj.vm2.script;
 
-import java.io.*;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.Reader;
+import java.io.StringReader;
 
-import javax.script.*;
+import javax.script.AbstractScriptEngine;
+import javax.script.Bindings;
+import javax.script.Compilable;
+import javax.script.CompiledScript;
+import javax.script.ScriptContext;
+import javax.script.ScriptEngine;
+import javax.script.ScriptEngineFactory;
+import javax.script.ScriptException;
+import javax.script.SimpleBindings;
 
-import li.cil.repack.org.luaj.vm2.*;
+import li.cil.repack.org.luaj.vm2.Globals;
+import li.cil.repack.org.luaj.vm2.Lua;
+import li.cil.repack.org.luaj.vm2.LuaClosure;
+import li.cil.repack.org.luaj.vm2.LuaError;
+import li.cil.repack.org.luaj.vm2.LuaFunction;
+import li.cil.repack.org.luaj.vm2.LuaTable;
+import li.cil.repack.org.luaj.vm2.LuaValue;
+import li.cil.repack.org.luaj.vm2.Varargs;
 import li.cil.repack.org.luaj.vm2.lib.ThreeArgFunction;
 import li.cil.repack.org.luaj.vm2.lib.TwoArgFunction;
 import li.cil.repack.org.luaj.vm2.lib.jse.CoerceJavaToLua;

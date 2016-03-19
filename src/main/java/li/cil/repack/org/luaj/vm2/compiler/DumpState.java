@@ -28,9 +28,9 @@ import java.io.OutputStream;
 import li.cil.repack.org.luaj.vm2.Globals;
 import li.cil.repack.org.luaj.vm2.LoadState;
 import li.cil.repack.org.luaj.vm2.LocVars;
-import li.cil.repack.org.luaj.vm2.Prototype;
 import li.cil.repack.org.luaj.vm2.LuaString;
 import li.cil.repack.org.luaj.vm2.LuaValue;
+import li.cil.repack.org.luaj.vm2.Prototype;
 
 /** Class to dump a {@link Prototype} into an output stream, as part of compiling.
  * <p>

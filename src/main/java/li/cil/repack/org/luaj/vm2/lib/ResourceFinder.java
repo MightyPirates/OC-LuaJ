@@ -23,6 +23,8 @@ package li.cil.repack.org.luaj.vm2.lib;
 
 import java.io.InputStream;
 
+import li.cil.repack.org.luaj.vm2.Globals;
+
 /** 
  * Interface for opening application resource files such as scripts sources.  
  * <p>
@@ -32,15 +34,15 @@ import java.io.InputStream;
  * <p>
  * The Jme version of base lib {@link BaseLib} 
  * implements {@link Globals#finder} via {@link Class#getResourceAsStream(String)}, 
- * while the Jse version {@link JseBaseLib} implements it using {@link java.io.File#File(String)}.
+ * while the Jse version {@link li.cil.repack.org.luaj.vm2.lib.jse.JseBaseLib} implements it using {@link java.io.File#File(String)}.
  * <p>
  * The io library does not use this API for file manipulation.
  * <p>
  * @see BaseLib
  * @see Globals#finder
- * @see JseBaseLib
- * @see JmePlatform
- * @see JsePlatform 
+ * @see li.cil.repack.org.luaj.vm2.lib.jse.JseBaseLib
+ * @see li.cil.repack.org.luaj.vm2.lib.jme.JmePlatform
+ * @see li.cil.repack.org.luaj.vm2.lib.jse.JsePlatform
  */
 public interface ResourceFinder {
 

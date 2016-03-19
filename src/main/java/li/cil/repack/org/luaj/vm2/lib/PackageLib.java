@@ -51,7 +51,7 @@ import li.cil.repack.org.luaj.vm2.Varargs;
  * 
  * <h3>Loading</h3>
  * Typically, this library is included as part of a call to either 
- * {@link JsePlatform#standardGlobals()} or {@link JmePlatform#standardGlobals()}
+ * {@link li.cil.repack.org.luaj.vm2.lib.jse.JsePlatform#standardGlobals()} or {@link li.cil.repack.org.luaj.vm2.lib.jme.JmePlatform#standardGlobals()}
  * <pre> {@code
  * Globals globals = JsePlatform.standardGlobals();
  * System.out.println( globals.get("require").call"foo") );
@@ -68,13 +68,13 @@ import li.cil.repack.org.luaj.vm2.Varargs;
  * <h3>Limitations</h3>
  * This library has been implemented to match as closely as possible the behavior in the corresponding library in C.
  * However, the default filesystem search semantics are different and delegated to the bas library 
- * as outlined in the {@link BaseLib} and {@link JseBaseLib} documentation. 
+ * as outlined in the {@link BaseLib} and {@link li.cil.repack.org.luaj.vm2.lib.jse.JseBaseLib} documentation.
  * <p>
  * @see LibFunction
  * @see BaseLib
- * @see JseBaseLib
- * @see JsePlatform
- * @see JmePlatform
+ * @see li.cil.repack.org.luaj.vm2.lib.jse.JseBaseLib
+ * @see li.cil.repack.org.luaj.vm2.lib.jse.JsePlatform
+ * @see li.cil.repack.org.luaj.vm2.lib.jme.JmePlatform
  * @see <a href="http://www.lua.org/manual/5.2/manual.html#6.3">Lua 5.2 Package Lib Reference</a>
  */
 public class PackageLib extends TwoArgFunction {
@@ -105,7 +105,7 @@ public class PackageLib extends TwoArgFunction {
 	/** The table for this package. */
 	LuaTable package_;
 
-	/** Loader that loads from {@link preload} table if found there */
+	/** Loader that loads from {@code preload} table if found there */
 	public preload_searcher preload_searcher;
 
 	/** Loader that loads as a lua script using the lua path currently in {@link path} */
@@ -120,6 +120,13 @@ public class PackageLib extends TwoArgFunction {
 
 	public PackageLib() {}
 
+	/** Perform one-time initialization on the library by adding package functions
+	 * to the supplied environment, and returning it as the return value.
+	 * It also creates the package.preload and package.loaded tables for use by
+	 * other libraries.
+	 * @param modname the module name supplied if this is loaded via 'require'.
+	 * @param env the environment to load into, typically a Globals instance.
+	 */
 	public LuaValue call(LuaValue modname, LuaValue env) {
 		globals = env.checkglobals();
 		globals.set("require", new require());

@@ -25,8 +25,8 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.text.DecimalFormat;
 
-import li.cil.repack.org.luaj.vm2.LuaClosure;
 import li.cil.repack.org.luaj.vm2.Buffer;
+import li.cil.repack.org.luaj.vm2.LuaClosure;
 import li.cil.repack.org.luaj.vm2.LuaString;
 import li.cil.repack.org.luaj.vm2.LuaTable;
 import li.cil.repack.org.luaj.vm2.LuaValue;
@@ -38,7 +38,7 @@ import li.cil.repack.org.luaj.vm2.compiler.DumpState;
  * library. 
  * <p>
  * Typically, this library is included as part of a call to either 
- * {@link JsePlatform#standardGlobals()} or {@link JmePlatform#standardGlobals()}
+ * {@link li.cil.repack.org.luaj.vm2.lib.jse.JsePlatform#standardGlobals()} or {@link li.cil.repack.org.luaj.vm2.lib.jme.JmePlatform#standardGlobals()}
  * <pre> {@code
  * Globals globals = JsePlatform.standardGlobals();
  * System.out.println( globals.get("string").get("upper").call( LuaValue.valueOf("abcde") ) );
@@ -56,70 +56,53 @@ import li.cil.repack.org.luaj.vm2.compiler.DumpState;
  * <p>
  * This is a direct port of the corresponding library in C.
  * @see LibFunction
- * @see JsePlatform
- * @see JmePlatform
+ * @see li.cil.repack.org.luaj.vm2.lib.jse.JsePlatform
+ * @see li.cil.repack.org.luaj.vm2.lib.jme.JmePlatform
  * @see <a href="http://www.lua.org/manual/5.2/manual.html#6.4">Lua 5.2 String Lib Reference</a>
  */
 public class StringLib extends TwoArgFunction {
 
-	public static LuaTable instance;
-
+	/** Construct a StringLib, which can be initialized by calling it with a
+	 * modname string, and a global environment table as arguments using
+	 * {@link #call(LuaValue, LuaValue)}. */
 	public StringLib() {}
 
+	/** Perform one-time initialization on the library by creating a table
+	 * containing the library functions, adding that table to the supplied environment,
+	 * adding the table to package.loaded, and returning table as the return value.
+	 * Creates a metatable that uses __INDEX to fall back on itself to support string
+	 * method operations.
+	 * If the shared strings metatable instance is null, will set the metatable as
+	 * the global shared metatable for strings.
+	 * <P>
+	 * All tables and metatables are read-write by default so if this will be used in
+	 * a server environment, sandboxing should be used.  In particular, the
+	 * {@link LuaString#s_metatable} table should probably be made read-only.
+	 * @param modname the module name supplied if this is loaded via 'require'.
+	 * @param env the environment to load into, typically a Globals instance.
+	 */
 	public LuaValue call(LuaValue modname, LuaValue env) {
-		LuaTable t = new LuaTable();
-		bind(t, StringLib1.class, new String[] { "dump", "len", "lower", "reverse", "upper", });
-		bind(t, StringLibV.class, new String[] { "byte", "char", "find", "format", "gmatch", "gsub", "match", "rep", "sub" });
-		env.set("string", t);
-		instance = t;
+		LuaTable string = new LuaTable();
+		string.set("byte", new byte_());
+		string.set("char", new char_());
+		string.set("dump", new dump());
+		string.set("find", new find());
+		string.set("format", new format());
+		string.set("gmatch", new gmatch());
+		string.set("gsub", new gsub());
+		string.set("len", new len());
+		string.set("lower", new lower());
+		string.set("match", new match());
+		string.set("rep", new rep());
+		string.set("reverse", new reverse());
+		string.set("sub", new sub());
+		string.set("upper", new upper());
+		LuaTable mt = LuaValue.tableOf(new LuaValue[] { INDEX, string });
+		env.set("string", string);
+		env.get("package").get("loaded").set("string", string);
 		if (LuaString.s_metatable == null)
-			LuaString.s_metatable = tableOf(new LuaValue[] { INDEX, t });
-		env.get("package").get("loaded").set("string", t);
-		return t;
-	}
-
-	static final class StringLib1 extends OneArgFunction {
-		public LuaValue call(LuaValue arg) {
-			switch (opcode) {
-			case 0:
-				return dump(arg); // dump (function)
-			case 1:
-				return StringLib.len(arg); // len (function)
-			case 2:
-				return lower(arg); // lower (function)
-			case 3:
-				return reverse(arg); // reverse (function)
-			case 4:
-				return upper(arg); // upper (function)
-			}
-			return NIL;
-		}
-	}
-
-	static final class StringLibV extends VarArgFunction {
-		public Varargs invoke(Varargs args) {
-			switch (opcode) {
-			case 0:
-				return StringLib.byte_(args);
-			case 1:
-				return StringLib.char_(args);
-			case 2:
-				return StringLib.find(args);
-			case 3:
-				return StringLib.format(args);
-			case 4:
-				return StringLib.gmatch(args);
-			case 5:
-				return StringLib.gsub(args);
-			case 6:
-				return StringLib.match(args);
-			case 7:
-				return StringLib.rep(args);
-			case 8:
-				return StringLib.sub(args);
-			}
-			return NONE;
-		}
+			LuaString.s_metatable = mt;
+		return string;
 	}
 
 	/**
@@ -133,25 +116,27 @@ public class StringLib extends TwoArgFunction {
 	 * 
 	 * @param args the calling args
 	 */
-	static Varargs byte_(Varargs args) {
-		LuaString s = args.checkstring(1);
-		int l = s.m_length;
-		int posi = posrelat(args.optint(2, 1), l);
-		int pose = posrelat(args.optint(3, posi), l);
-		int n, i;
-		if (posi <= 0)
-			posi = 1;
-		if (pose > l)
-			pose = l;
-		if (posi > pose)
-			return NONE; /* empty interval; return no values */
-		n = (int) (pose - posi + 1);
-		if (posi + n <= pose) /* overflow? */
-			error("string slice too long");
-		LuaValue[] v = new LuaValue[n];
-		for (i = 0; i < n; i++)
-			v[i] = valueOf(s.luaByte(posi + i - 1));
-		return varargsOf(v);
+	static final class byte_ extends VarArgFunction {
+		public Varargs invoke(Varargs args) {
+			LuaString s = args.checkstring(1);
+			int l = s.m_length;
+			int posi = posrelat(args.optint(2, 1), l);
+			int pose = posrelat(args.optint(3, posi), l);
+			int n, i;
+			if (posi <= 0)
+				posi = 1;
+			if (pose > l)
+				pose = l;
+			if (posi > pose)
+				return NONE; /* empty interval; return no values */
+			n = (int) (pose - posi + 1);
+			if (posi + n <= pose) /* overflow? */
+				error("string slice too long");
+			LuaValue[] v = new LuaValue[n];
+			for (i = 0; i < n; i++)
+				v[i] = valueOf(s.luaByte(posi + i - 1));
+			return varargsOf(v);
+		}
 	}
 
 	/** 
@@ -165,16 +150,18 @@ public class StringLib extends TwoArgFunction {
 	 * 
 	 * @param args the calling VM
 	 */
-	public static Varargs char_(Varargs args) {
-		int n = args.narg();
-		byte[] bytes = new byte[n];
-		for (int i = 0, a = 1; i < n; i++, a++) {
-			int c = args.checkint(a);
-			if (c < 0 || c >= 256)
-				argerror(a, "invalid value");
-			bytes[i] = (byte) c;
+	static final class char_ extends VarArgFunction {
+		public Varargs invoke(Varargs args) {
+			int n = args.narg();
+			byte[] bytes = new byte[n];
+			for (int i = 0, a = 1; i < n; i++, a++) {
+				int c = args.checkint(a);
+				if (c < 0 || c >= 256)
+					argerror(a, "invalid value");
+				bytes[i] = (byte) c;
+			}
+			return LuaString.valueUsing(bytes);
 		}
-		return LuaString.valueOf(bytes);
 	}
 
 	/** 
@@ -186,14 +173,16 @@ public class StringLib extends TwoArgFunction {
 	 *  
 	 * TODO: port dumping code as optional add-on
 	 */
-	static LuaValue dump(LuaValue arg) {
-		LuaValue f = arg.checkfunction();
-		ByteArrayOutputStream baos = new ByteArrayOutputStream();
-		try {
-			DumpState.dump(((LuaClosure) f).p, baos, true);
-			return LuaString.valueOf(baos.toByteArray());
-		} catch (IOException e) {
-			return error(e.getMessage());
+	static final class dump extends OneArgFunction {
+		public LuaValue call(LuaValue arg) {
+			LuaValue f = arg.checkfunction();
+			ByteArrayOutputStream baos = new ByteArrayOutputStream();
+			try {
+				DumpState.dump(((LuaClosure) f).p, baos, true);
+				return LuaString.valueUsing(baos.toByteArray());
+			} catch (IOException e) {
+				return error(e.getMessage());
+			}
 		}
 	}
 
@@ -213,8 +202,10 @@ public class StringLib extends TwoArgFunction {
 	 * If the pattern has captures, then in a successful match the captured values 
 	 * are also returned, after the two indices.
 	 */
-	static Varargs find(Varargs args) {
-		return str_find_aux(args, true);
+	static final class find extends VarArgFunction {
+		public Varargs invoke(Varargs args) {
+			return str_find_aux(args, true);
+		}
 	}
 
 	/** 
@@ -240,85 +231,87 @@ public class StringLib extends TwoArgFunction {
 	 * This function does not accept string values containing embedded zeros, 
 	 * except as arguments to the q option. 
 	 */
-	static Varargs format(Varargs args) {
-		LuaString fmt = args.checkstring(1);
-		final int n = fmt.length();
-		Buffer result = new Buffer(n);
-		int arg = 1;
-		int c;
+	static final class format extends VarArgFunction {
+		public Varargs invoke(Varargs args) {
+			LuaString fmt = args.checkstring(1);
+			final int n = fmt.length();
+			Buffer result = new Buffer(n);
+			int arg = 1;
+			int c;
 
-		for (int i = 0; i < n;) {
-			switch (c = fmt.luaByte(i++)) {
-			case '\n':
-				result.append("\n");
-				break;
-			default:
-				result.append((byte) c);
-				break;
-			case L_ESC:
-				if (i < n) {
-					if ((c = fmt.luaByte(i)) == L_ESC) {
-						++i;
-						result.append((byte) L_ESC);
-					} else {
-						arg++;
-						args.checkvalue(arg);
-						FormatDesc fdsc = new FormatDesc(args, fmt, i);
-						i += fdsc.length;
-						switch (fdsc.conversion) {
-						case 'c':
-							fdsc.format(result, (byte) args.checkint(arg));
-							break;
-						case 'i':
-						case 'd':
-							// Still not right, but works better
-							double sNum = args.checkdouble(arg);
-							long sINum = args.checklong(arg);
-							double sDiff = sNum - sINum;
-							args.argcheck(-1 < sDiff && sDiff < 1, arg, "not a number in proper range");
-							fdsc.format(result, args.checklong(arg));
-							break;
-						case 'o':
-						case 'u':
-						case 'x':
-						case 'X':
-							// Still not right, but works better
-							double uNum = args.checkdouble(arg);
-							long uINum = args.checklong(arg);
-							double uDiff = uNum - uINum;
-							args.argcheck(-1 < uDiff && uDiff < 1 && uINum >= 0, arg, "not a non-negative number in proper range");
-							fdsc.format(result, args.checklong(arg));
-							break;
-						case 'e':
-						case 'E':
-						case 'f':
-						case 'g':
-						case 'G':
-							fdsc.format(result, args.checkdouble(arg));
-							break;
-						case 'q':
-							addquoted(result, args.checkstring(arg));
-							break;
-						case 's': {
-							LuaString s = args.checkstring(arg);
-							if (fdsc.precision == -1 && s.length() >= 100) {
-								result.append(s);
-							} else {
-								fdsc.format(result, s);
+			for (int i = 0; i < n;) {
+				switch (c = fmt.luaByte(i++)) {
+				case '\n':
+					result.append("\n");
+					break;
+				default:
+					result.append((byte) c);
+					break;
+				case L_ESC:
+					if (i < n) {
+						if ((c = fmt.luaByte(i)) == L_ESC) {
+							++i;
+							result.append((byte) L_ESC);
+						} else {
+							arg++;
+							args.checkvalue(arg);
+							FormatDesc fdsc = new FormatDesc(args, fmt, i);
+							i += fdsc.length;
+							switch (fdsc.conversion) {
+							case 'c':
+								fdsc.format(result, (byte) args.checkint(arg));
+								break;
+							case 'i':
+							case 'd':
+								// Still not right, but works better
+								double sNum = args.checkdouble(arg);
+								long sINum = args.checklong(arg);
+								double sDiff = sNum - sINum;
+								args.argcheck(-1 < sDiff && sDiff < 1, arg, "not a number in proper range");
+								fdsc.format(result, args.checklong(arg));
+								break;
+							case 'o':
+							case 'u':
+							case 'x':
+							case 'X':
+								// Still not right, but works better
+								double uNum = args.checkdouble(arg);
+								long uINum = args.checklong(arg);
+								double uDiff = uNum - uINum;
+								args.argcheck(-1 < uDiff && uDiff < 1 && uINum >= 0, arg, "not a non-negative number in proper range");
+								fdsc.format(result, args.checklong(arg));
+								break;
+							case 'e':
+							case 'E':
+							case 'f':
+							case 'g':
+							case 'G':
+								fdsc.format(result, args.checkdouble(arg));
+								break;
+							case 'q':
+								addquoted(result, args.checkstring(arg));
+								break;
+							case 's': {
+								LuaString s = args.checkstring(arg);
+								if (fdsc.precision == -1 && s.length() >= 100) {
+									result.append(s);
+								} else {
+									fdsc.format(result, s);
+								}
+							}
+								break;
+							default:
+								error("invalid option '%" + (char) fdsc.conversion + "' to 'format'");
+								break;
 							}
 						}
-							break;
-						default:
-							error("invalid option '%" + (char) fdsc.conversion + "' to 'format'");
-							break;
-						}
-					}
-				} else
-					error("invalid option '%' to 'format'");
+					} else
+						error("invalid option '%' to 'format'");
+				}
 			}
-		}
 
-		return result.tostring();
+			return result.tostring();
+		}
 	}
 
 	private static void addquoted(Buffer buf, LuaString s) {
@@ -655,10 +648,12 @@ public class StringLib extends TwoArgFunction {
 	 * For this function, a '^' at the start of a pattern does not work as an anchor, 
 	 * as this would prevent the iteration.
 	 */
-	static Varargs gmatch(Varargs args) {
-		LuaString src = args.checkstring(1);
-		LuaString pat = args.checkstring(2);
-		return new GMatchAux(args, src, pat);
+	static final class gmatch extends VarArgFunction {
+		public Varargs invoke(Varargs args) {
+			LuaString src = args.checkstring(1);
+			LuaString pat = args.checkstring(2);
+			return new GMatchAux(args, src, pat);
+		}
 	}
 
 	static class GMatchAux extends VarArgFunction {
@@ -731,37 +726,39 @@ public class StringLib extends TwoArgFunction {
 	 *	     x = string.gsub("$name-$version.tar.gz", "%$(%w+)", t)
 	 *	     --> x="lua-5.1.tar.gz"
 	 */
-	static Varargs gsub(Varargs args) {
-		LuaString src = args.checkstring(1);
-		final int srclen = src.length();
-		LuaString p = args.checkstring(2);
-		LuaValue repl = args.arg(3);
-		int max_s = args.optint(4, srclen + 1);
-		final boolean anchor = p.length() > 0 && p.charAt(0) == '^';
+	static final class gsub extends VarArgFunction {
+		public Varargs invoke(Varargs args) {
+			LuaString src = args.checkstring(1);
+			final int srclen = src.length();
+			LuaString p = args.checkstring(2);
+			LuaValue repl = args.arg(3);
+			int max_s = args.optint(4, srclen + 1);
+			final boolean anchor = p.length() > 0 && p.charAt(0) == '^';
 
-		Buffer lbuf = new Buffer(srclen);
-		MatchState ms = new MatchState(args, src, p);
+			Buffer lbuf = new Buffer(srclen);
+			MatchState ms = new MatchState(args, src, p);
 
-		int soffset = 0;
-		int n = 0;
-		while (n < max_s) {
-			ms.reset();
-			int res = ms.match(soffset, anchor ? 1 : 0);
-			if (res != -1) {
-				n++;
-				ms.add_value(lbuf, soffset, res, repl);
+			int soffset = 0;
+			int n = 0;
+			while (n < max_s) {
+				ms.reset();
+				int res = ms.match(soffset, anchor ? 1 : 0);
+				if (res != -1) {
+					n++;
+					ms.add_value(lbuf, soffset, res, repl);
+				}
+				if (res != -1 && res > soffset)
+					soffset = res;
+				else if (soffset < srclen)
+					lbuf.append((byte) src.luaByte(soffset++));
+				else
+					break;
+				if (anchor)
+					break;
 			}
-			if (res != -1 && res > soffset)
-				soffset = res;
-			else if (soffset < srclen)
-				lbuf.append((byte) src.luaByte(soffset++));
-			else
-				break;
-			if (anchor)
-				break;
+			lbuf.append(src.substring(soffset, srclen));
+			return varargsOf(lbuf.tostring(), valueOf(n));
 		}
-		lbuf.append(src.substring(soffset, srclen));
-		return varargsOf(lbuf.tostring(), valueOf(n));
 	}
 
 	/** 
@@ -770,8 +767,10 @@ public class StringLib extends TwoArgFunction {
 	 * Receives a string and returns its length. The empty string "" has length 0. 
 	 * Embedded zeros are counted, so "a\000bc\000" has length 5. 
 	 */
-	static LuaValue len(LuaValue arg) {
-		return arg.checkstring().len();
+	static final class len extends OneArgFunction {
+		public LuaValue call(LuaValue arg) {
+			return arg.checkstring().len();
+		}
 	}
 
 	/** 
@@ -781,8 +780,10 @@ public class StringLib extends TwoArgFunction {
 	 * changed to lowercase. All other characters are left unchanged. 
 	 * The definition of what an uppercase letter is depends on the current locale.
 	 */
-	static LuaValue lower(LuaValue arg) {
-		return valueOf(arg.checkjstring().toLowerCase());
+	static final class lower extends OneArgFunction {
+		public LuaValue call(LuaValue arg) {
+			return valueOf(arg.checkjstring().toLowerCase());
+		}
 	}
 
 	/**
@@ -794,8 +795,10 @@ public class StringLib extends TwoArgFunction {
 	 * A third, optional numerical argument init specifies where to start the
 	 * search; its default value is 1 and may be negative.
 	 */
-	static Varargs match(Varargs args) {
-		return str_find_aux(args, false);
+	static final class match extends VarArgFunction {
+		public Varargs invoke(Varargs args) {
+			return str_find_aux(args, false);
+		}
 	}
 
 	/**
@@ -803,15 +806,17 @@ public class StringLib extends TwoArgFunction {
 	 * 
 	 * Returns a string that is the concatenation of n copies of the string s. 
 	 */
-	static Varargs rep(Varargs args) {
-		LuaString s = args.checkstring(1);
-		int n = Math.max(args.checkint(2), 0);
-		final byte[] bytes = new byte[s.length() * n];
-		int len = s.length();
-		for (int offset = 0; offset < bytes.length; offset += len) {
-			s.copyInto(0, bytes, offset, len);
+	static final class rep extends VarArgFunction {
+		public Varargs invoke(Varargs args) {
+			LuaString s = args.checkstring(1);
+			int n = Math.max(args.checkint(2), 0);
+			final byte[] bytes = new byte[s.length() * n];
+			int len = s.length();
+			for (int offset = 0; offset < bytes.length; offset += len) {
+				s.copyInto(0, bytes, offset, len);
+			}
+			return LuaString.valueUsing(bytes);
 		}
-		return LuaString.valueOf(bytes);
 	}
 
 	/** 
@@ -819,13 +824,15 @@ public class StringLib extends TwoArgFunction {
 	 * 
 	 * Returns a string that is the string s reversed. 
 	 */
-	static LuaValue reverse(LuaValue arg) {
-		LuaString s = arg.checkstring();
-		int n = s.length();
-		byte[] b = new byte[n];
-		for (int i = 0, j = n - 1; i < n; i++, j--)
-			b[j] = (byte) s.luaByte(i);
-		return LuaString.valueOf(b);
+	static final class reverse extends OneArgFunction {
+		public LuaValue call(LuaValue arg) {
+			LuaString s = arg.checkstring();
+			int n = s.length();
+			byte[] b = new byte[n];
+			for (int i = 0, j = n - 1; i < n; i++, j--)
+				b[j] = (byte) s.luaByte(i);
+			return LuaString.valueUsing(b);
+		}
 	}
 
 	/** 
@@ -839,22 +846,24 @@ public class StringLib extends TwoArgFunction {
 	 *   string.sub(s, -i) 
 	 * returns a suffix of s with length i.
 	 */
-	static Varargs sub(Varargs args) {
-		final LuaString s = args.checkstring(1);
-		final int l = s.length();
+	static final class sub extends VarArgFunction {
+		public Varargs invoke(Varargs args) {
+			final LuaString s = args.checkstring(1);
+			final int l = s.length();
 
-		int start = posrelat(args.checkint(2), l);
-		int end = posrelat(args.optint(3, -1), l);
+			int start = posrelat(args.checkint(2), l);
+			int end = posrelat(args.optint(3, -1), l);
 
-		if (start < 1)
-			start = 1;
-		if (end > l)
-			end = l;
+			if (start < 1)
+				start = 1;
+			if (end > l)
+				end = l;
 
-		if (start <= end) {
-			return s.substring(start - 1, end);
-		} else {
-			return EMPTYSTRING;
+			if (start <= end) {
+				return s.substring(start - 1, end);
+			} else {
+				return EMPTYSTRING;
+			}
 		}
 	}
 
@@ -865,8 +874,10 @@ public class StringLib extends TwoArgFunction {
 	 * changed to uppercase. All other characters are left unchanged. 
 	 * The definition of what a lowercase letter is depends on the current locale.	
 	 */
-	static LuaValue upper(LuaValue arg) {
-		return valueOf(arg.checkjstring().toUpperCase());
+	static final class upper extends OneArgFunction {
+		public LuaValue call(LuaValue arg) {
+			return valueOf(arg.checkjstring().toUpperCase());
+		}
 	}
 
 	/**
@@ -961,7 +972,7 @@ public class StringLib extends TwoArgFunction {
 		CHAR_TABLE['\r'] |= MASK_SPACE;
 		CHAR_TABLE['\n'] |= MASK_SPACE;
 		CHAR_TABLE['\t'] |= MASK_SPACE;
-		CHAR_TABLE[0x0C /* '\v' */] |= MASK_SPACE;
+		CHAR_TABLE[0x0C /* '\v' */ ] |= MASK_SPACE;
 		CHAR_TABLE['\f'] |= MASK_SPACE;
 	};
 
