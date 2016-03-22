@@ -268,7 +268,7 @@ public class StringLib extends TwoArgFunction {
 								long sINum = args.checklong(arg);
 								double sDiff = sNum - sINum;
 								args.argcheck(-1 < sDiff && sDiff < 1, arg, "not a number in proper range");
-								fdsc.format(result, args.checklong(arg));
+								fdsc.format(result, sINum);
 								break;
 							case 'o':
 							case 'u':
@@ -279,7 +279,7 @@ public class StringLib extends TwoArgFunction {
 								long uINum = args.checklong(arg);
 								double uDiff = uNum - uINum;
 								args.argcheck(-1 < uDiff && uDiff < 1 && uINum >= 0, arg, "not a non-negative number in proper range");
-								fdsc.format(result, args.checklong(arg));
+								fdsc.format(result, uINum);
 								break;
 							case 'e':
 							case 'E':
@@ -291,14 +291,22 @@ public class StringLib extends TwoArgFunction {
 							case 'q':
 								addquoted(result, args.checkstring(arg));
 								break;
-							case 's': {
-								LuaString s = args.checkstring(arg);
+							case 's':
+								LuaValue v = args.checkvalue(arg);
+								LuaString s;
+								LuaValue t = v.metatag(TOSTRING);
+								if (!t.isnil()) {
+									LuaValue h = t.call(v).tostring();
+									s = (!h.isnil() ? (LuaString) h : valueOf("(null)"));
+								} else if (v instanceof LuaString) // Avoid UTF-8 Handling/Corruption
+									s = (LuaString) v;
+								else
+									s = valueOf(v.tojstring());
 								if (fdsc.precision == -1 && s.length() >= 100) {
 									result.append(s);
 								} else {
 									fdsc.format(result, s);
 								}
-							}
 								break;
 							default:
 								error("invalid option '%" + (char) fdsc.conversion + "' to 'format'");
@@ -802,19 +810,32 @@ public class StringLib extends TwoArgFunction {
 	}
 
 	/**
-	 * string.rep (s, n)
+	 * string.rep (s, n [, sep])
 	 * 
-	 * Returns a string that is the concatenation of n copies of the string s. 
+	 * Returns a string that is the concatenation of n copies of the string s
+	 * separated by the string sep. The default value for sep is the empty
+	 * string (that is, no separator).
 	 */
 	static final class rep extends VarArgFunction {
 		public Varargs invoke(Varargs args) {
 			LuaString s = args.checkstring(1);
-			int n = Math.max(args.checkint(2), 0);
-			final byte[] bytes = new byte[s.length() * n];
+			int n = args.checkint(2);
+			LuaString sep = args.optstring(3, EMPTYSTRING);
+			if (n <= 0)
+				return EMPTYSTRING;
 			int len = s.length();
-			for (int offset = 0; offset < bytes.length; offset += len) {
+			int lsep = sep.length();
+			final byte[] bytes = new byte[len * n + lsep * (n - 1)];
+			int offset = 0;
+			while (n-- > 1) {
 				s.copyInto(0, bytes, offset, len);
+				offset += len;
+				if (lsep > 0) {
+					sep.copyInto(0, bytes, offset, lsep);
+					offset += lsep;
+				}
 			}
+			s.copyInto(0, bytes, offset, len);
 			return LuaString.valueUsing(bytes);
 		}
 	}

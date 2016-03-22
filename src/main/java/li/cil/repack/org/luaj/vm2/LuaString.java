@@ -26,7 +26,6 @@ import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.PrintStream;
-import java.util.Arrays;
 
 import li.cil.repack.org.luaj.vm2.lib.MathLib;
 
@@ -605,7 +604,9 @@ public class LuaString extends LuaValue {
 	 * beginIndex and extending for (endIndex - beginIndex ) characters.
 	 */
 	public LuaString substring(int beginIndex, int endIndex) {
-		return new LuaString(Arrays.copyOfRange(m_bytes, beginIndex, endIndex), 0, endIndex - beginIndex);
+		final int off = m_offset + beginIndex;
+		final int len = endIndex - beginIndex;
+		return len >= m_length / 2 ? valueUsing(m_bytes, off, len) : valueOf(m_bytes, off, len);
 	}
 
 	public int hashCode() {
@@ -919,6 +920,22 @@ public class LuaString extends LuaValue {
 		return Double.isNaN(d) ? NIL : valueOf(d);
 	}
 
+	private boolean isspace(byte c) {
+		return c == ' ' || (c >= '\t' && c <= '\r');
+	}
+
+	private boolean isdigit(byte c) {
+		return (c >= '0' && c <= '9');
+	}
+
+	private boolean isxdigit(byte c) {
+		return (c >= '0' && c <= '9') || (c >= 'a' && c <= 'f') || (c >= 'A' && c <= 'F');
+	}
+
+	private int hexvalue(byte c) {
+		return c <= '9' ? c - '0' : c <= 'F' ? c + 10 - 'A' : c + 10 - 'a';
+	}
+
 	/** 
 	 * Convert to a number in base 10, or base 16 if the string starts with '0x', 
 	 * or return Double.NaN if it cannot be converted to a number.
@@ -926,16 +943,63 @@ public class LuaString extends LuaValue {
 	 */
 	public double scannumber() {
 		int i = m_offset, j = m_offset + m_length;
-		while (i < j && m_bytes[i] == ' ')
+		while (i < j && isspace(m_bytes[i]))
 			++i;
-		while (i < j && m_bytes[j - 1] == ' ')
+		while (i < j && isspace(m_bytes[j - 1]))
 			--j;
 		if (i >= j)
 			return Double.NaN;
-		if (m_bytes[i] == '0' && i + 1 < j && (m_bytes[i + 1] == 'x' || m_bytes[i + 1] == 'X'))
-			return scandouble(16, i + 2, j);
-		double l = scandouble(10, i, j);
-		return Double.isNaN(l) ? scandouble(i, j) : l;
+		if (indexOf((byte) 'x', i - m_offset) != -1 || indexOf((byte) 'X', i - m_offset) != -1)
+			return strx2number(i, j);
+		return scandouble(i, j);
+	}
+
+	private double strx2number(int start, int end) {
+		double sgn = (m_bytes[start] == '-') ? -1.0 : 1.0;
+		if (sgn == -1.0 || m_bytes[start] == '+')
+			++start;
+		if (start + 2 >= end)
+			return Double.NaN;
+		if (m_bytes[start++] != '0')
+			return Double.NaN;
+		if (m_bytes[start] != 'x' && m_bytes[start] != 'X')
+			return Double.NaN;
+		++start;
+		double m = 0;
+		int e = 0;
+		boolean i = isxdigit(m_bytes[start]);
+		while (start < end && isxdigit(m_bytes[start]))
+			m = (m * 16) + hexvalue(m_bytes[start++]);
+		if (start < end && m_bytes[start] == '.') {
+			++start;
+			while (start < end && isxdigit(m_bytes[start])) {
+				m = (m * 16) + hexvalue(m_bytes[start++]);
+				e -= 4;
+			}
+		}
+		if (!i && e == 0)
+			return Double.NaN;
+		if (start < end && (m_bytes[start] == 'p' || m_bytes[start] == 'P')) {
+			++start;
+			int exp1 = 0;
+			boolean neg1 = false;
+			if (start < end) {
+				if (m_bytes[start] == '-')
+					neg1 = true;
+				if (neg1 || m_bytes[start] == '+')
+					++start;
+			}
+			if (start >= end || !isdigit(m_bytes[start]))
+				return Double.NaN;
+			while (start < end && isdigit(m_bytes[start]))
+				exp1 = exp1 * 10 + m_bytes[start++] - '0';
+			if (neg1)
+				exp1 = -exp1;
+			e += exp1;
+		}
+		if (start != end)
+			return Double.NaN;
+		return sgn * m * MathLib.dpow_d(2.0, e);
 	}
 
 	/** 
@@ -947,9 +1011,9 @@ public class LuaString extends LuaValue {
 		if (base < 2 || base > 36)
 			return Double.NaN;
 		int i = m_offset, j = m_offset + m_length;
-		while (i < j && m_bytes[i] == ' ')
+		while (i < j && isspace(m_bytes[i]))
 			++i;
-		while (i < j && m_bytes[j - 1] == ' ')
+		while (i < j && isspace(m_bytes[j - 1]))
 			--j;
 		if (i >= j)
 			return Double.NaN;
@@ -967,8 +1031,10 @@ public class LuaString extends LuaValue {
 	private double scandouble(int base, int start, int end) {
 		double x = 0;
 		boolean neg = (m_bytes[start] == '-');
-		for (int i = (neg ? start + 1 : start); i < end; i++) {
-			int digit = m_bytes[i] - (base <= 10 || (m_bytes[i] >= '0' && m_bytes[i] <= '9') ? '0' : m_bytes[i] >= 'A' && m_bytes[i] <= 'Z' ? ('A' - 10) : ('a' - 10));
+		if (neg || m_bytes[start] == '+')
+			start++;
+		for (int i = start; i < end; i++) {
+			int digit = m_bytes[i] - (base <= 10 || isdigit(m_bytes[i]) ? '0' : m_bytes[i] >= 'A' && m_bytes[i] <= 'Z' ? ('A' - 10) : ('a' - 10));
 			if (digit < 0 || digit >= base || (m_bytes[i] >= '9' && digit < 10))
 				return Double.NaN;
 			x = x * base + digit;

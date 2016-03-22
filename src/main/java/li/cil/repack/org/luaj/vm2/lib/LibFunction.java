@@ -137,10 +137,6 @@ abstract public class LibFunction extends LuaFunction {
 	/** Default constructor for use by subclasses */
 	protected LibFunction() {}
 
-	public String tojstring() {
-		return name != null ? name : super.tojstring();
-	}
-
 	/** 
 	 * Bind a set of library functions.  
 	 * <p>

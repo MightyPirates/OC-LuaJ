@@ -122,10 +122,6 @@ public class LuaClosure extends LuaFunction {
 		return s_metatable;
 	}
 
-	public String tojstring() {
-		return "function: " + p.toString();
-	}
-
 	public final LuaValue call() {
 		LuaValue[] stack = new LuaValue[p.maxstacksize];
 		for (int i = 0; i < p.numparams; ++i)

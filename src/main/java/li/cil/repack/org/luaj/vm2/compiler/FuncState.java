@@ -93,7 +93,7 @@ public class FuncState extends Constants {
 		int i;
 		for (i = bl.firstlabel; i < ll_n; i++) {
 			if (label.eq_b(ll[i].name)) {
-				String msg = ls.L.pushfstring("label '" + label + " already defined on line " + ll[i].line);
+				String msg = ls.L.pushfstring("label '" + label + "' already defined on line " + ll[i].line);
 				ls.semerror(msg);
 			}
 		}

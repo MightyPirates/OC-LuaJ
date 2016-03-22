@@ -122,9 +122,13 @@ public class JseMathLib extends li.cil.repack.org.luaj.vm2.lib.MathLib {
 		}
 	}
 
-	static final class log extends UnaryOp {
-		protected double call(double d) {
-			return Math.log(d);
+	static final class log extends LibFunction {
+		public LuaValue call(LuaValue x) {
+			return valueOf(Math.log(x.checkdouble()));
+		}
+
+		public LuaValue call(LuaValue x, LuaValue base) {
+			return valueOf(Math.log(x.checkdouble()) / Math.log(base.checkdouble()));
 		}
 	}
 

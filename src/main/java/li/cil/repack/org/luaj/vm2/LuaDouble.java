@@ -89,6 +89,10 @@ public class LuaDouble extends LuaNumber {
 		return ((int) (l >> 32)) + (int) l;
 	}
 
+	public boolean isNegative() {
+		return Double.doubleToRawLongBits(v) < 0;
+	}
+
 	public boolean islong() {
 		return v == (long) v;
 	}
@@ -416,7 +420,7 @@ public class LuaDouble extends LuaNumber {
 		}
 		*/
 		if (Double.isNaN(v))
-			return JSTR_NAN;
+			return (isNegative() ? "-" : "") + JSTR_NAN;
 		if (Double.isInfinite(v))
 			return (v < 0 ? JSTR_NEGINF : JSTR_POSINF);
 		return Double.toString(v);

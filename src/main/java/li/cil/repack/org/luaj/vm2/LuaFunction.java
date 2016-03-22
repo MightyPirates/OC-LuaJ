@@ -62,10 +62,6 @@ abstract public class LuaFunction extends LuaValue {
 		return s_metatable;
 	}
 
-	public String tojstring() {
-		return "function: " + classnamestub();
-	}
-
 	public LuaString strvalue() {
 		return valueOf(tojstring());
 	}

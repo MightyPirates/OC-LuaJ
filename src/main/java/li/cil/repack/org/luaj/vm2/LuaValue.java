@@ -560,7 +560,7 @@ abstract public class LuaValue extends Varargs {
 	 * @see #TSTRING
 	 */
 	public String tojstring() {
-		return typename() + ": " + Integer.toHexString(hashCode());
+		return typename() + ": 0x" + Integer.toHexString(hashCode());
 	}
 
 	/** Convert to userdata instance, or null.
@@ -1194,7 +1194,7 @@ abstract public class LuaValue extends Varargs {
 	 * @throws LuaError in all cases
 	 */
 	protected LuaValue argerror(String expected) {
-		throw new LuaError("bad argument: " + expected + " expected, got " + typename());
+		throw new LuaError("bad argument (" + expected + " expected, got " + typename() + ")");
 	}
 
 	/** 
@@ -1204,7 +1204,7 @@ abstract public class LuaValue extends Varargs {
 	 * @throws LuaError in all cases
 	 */
 	public static LuaValue argerror(int iarg, String msg) {
-		throw new LuaError("bad argument #" + iarg + ": " + msg);
+		throw new LuaError("bad argument #" + iarg + " (" + msg + ")");
 	}
 
 	/** 
