@@ -23,10 +23,10 @@ package li.cil.repack.org.luaj.vm2.lib;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.text.DecimalFormat;
 
 import li.cil.repack.org.luaj.vm2.Buffer;
 import li.cil.repack.org.luaj.vm2.LuaClosure;
+import li.cil.repack.org.luaj.vm2.LuaDouble;
 import li.cil.repack.org.luaj.vm2.LuaString;
 import li.cil.repack.org.luaj.vm2.LuaTable;
 import li.cil.repack.org.luaj.vm2.LuaValue;
@@ -286,7 +286,40 @@ public class StringLib extends TwoArgFunction {
 							case 'f':
 							case 'g':
 							case 'G':
-								fdsc.format(result, args.checkdouble(arg));
+							case 'a':
+							case 'A':
+								double j = args.checkdouble(arg);
+								if (Double.isNaN(j) || Double.isInfinite(j)) {
+									String nprefix = "";
+									if (Double.doubleToRawLongBits(j) < 0)
+										nprefix = "-";
+									else if (fdsc.explicitPlus)
+										nprefix = "+";
+									else if (fdsc.space)
+										nprefix = " ";
+									String bstr = Double.isNaN(j) ? LuaDouble.JSTR_NAN : LuaDouble.JSTR_POSINF;
+									if (fdsc.conversion == 'E' || fdsc.conversion == 'G')
+										bstr = bstr.toUpperCase();
+									fdsc.precision = -1;
+									fdsc.zeroPad = false;
+									fdsc.format(result, valueOf(nprefix + bstr));
+								} else if ((fdsc.conversion == 'g' || fdsc.conversion == 'G') && fdsc.precision == -1) {
+									//TODO: This gives a slightly different format but is better than nothing
+									String nprefix = "";
+									if (j >= 0) {
+										if (fdsc.explicitPlus)
+											nprefix = "+";
+										else if (fdsc.space)
+											nprefix = " ";
+									}
+									String bstr = Double.toString(j);
+									if (fdsc.conversion == 'G')
+										bstr = bstr.toUpperCase();
+									else
+										bstr = bstr.toLowerCase();
+									fdsc.format(result, valueOf(nprefix + bstr));
+								} else
+									fdsc.format(result, args.checkdouble(arg));
 								break;
 							case 'q':
 								addquoted(result, args.checkstring(arg));
@@ -305,6 +338,7 @@ public class StringLib extends TwoArgFunction {
 								if (fdsc.precision == -1 && s.length() >= 100) {
 									result.append(s);
 								} else {
+									fdsc.zeroPad = false;
 									fdsc.format(result, s);
 								}
 								break;
@@ -409,8 +443,8 @@ public class StringLib extends TwoArgFunction {
 				}
 			}
 
-			precision = -1;
 			if (c == '.') {
+				precision = 0;
 				c = ((p < n) ? strfrmt.luaByte(p++) : 0);
 				if (Character.isDigit((char) c)) {
 					precision = c - '0';
@@ -420,12 +454,19 @@ public class StringLib extends TwoArgFunction {
 						c = ((p < n) ? strfrmt.luaByte(p++) : 0);
 					}
 				}
-			}
+			} else
+				precision = -1;
 
 			if (Character.isDigit((char) c))
 				error("invalid format (width or precision too long)");
 
-			zeroPad &= !leftAdjust; // '-' overrides '0'
+			if (width == -1) {
+				// default width overrides '-' and '0'
+				leftAdjust = false;
+				zeroPad = false;
+			} else
+				zeroPad &= !leftAdjust; // '-' overrides '0'
+			space &= !explicitPlus; // '+' overrides ' '
 			conversion = c;
 			length = p - start;
 		}
@@ -536,77 +577,24 @@ public class StringLib extends TwoArgFunction {
 		}
 
 		public void format(Buffer buf, double number) {
-			// TODO: force positive sign
-
-			int precise = precision == -1 ? 6 : precision;
-			String addDot = alternateForm || precise > 0 ? "." : "";
-
-			DecimalFormat scientificFormat = new DecimalFormat("0" + addDot + new String(new char[precise]).replace("\0", "0") + "E00");
-			DecimalFormat floatingFormat = new DecimalFormat("0" + addDot + new String(new char[precise]).replace("\0", "0"));
-
-			String digits;
-
-			switch (conversion) {
-			case 'e':
-			case 'E':
-				digits = scientificFormat.format(number);
-				break;
-			case 'f':
-				digits = floatingFormat.format(number);
-				break;
-			case 'g':
-			case 'G':
-			default:
-				// TODO: g, G
-				// TODO: precision
-				digits = String.valueOf(number);
-				break;
-			}
-
-			if (conversion == 'e' || conversion == 'g')
-				digits = digits.toLowerCase();
-
-			int minwidth = digits.length();
-			int ndigits = minwidth;
-			int nzeros;
-
-			if (number < 0) {
-				ndigits--;
-			} else if (explicitPlus || space) {
-				minwidth++;
-			}
-
-			if (precision > ndigits)
-				nzeros = precision - ndigits;
-			else if (precision == -1 && zeroPad && width > minwidth)
-				nzeros = width - minwidth;
-			else
-				nzeros = 0;
-
-			minwidth += nzeros;
-			int nspaces = width > minwidth ? width - minwidth : 0;
-
-			if (!leftAdjust)
-				pad(buf, ' ', nspaces);
-
-			if (number < 0) {
-				if (nzeros > 0) {
-					buf.append((byte) '-');
-					digits = digits.substring(1);
-				}
-			} else if (explicitPlus) {
-				buf.append((byte) '+');
-			} else if (space) {
-				buf.append((byte) ' ');
-			}
-
-			if (nzeros > 0)
-				pad(buf, '0', nzeros);
-
-			buf.append(digits);
-
+			// TODO: Java does not support alternateForm with 'g'
+			StringBuilder sFormat = new StringBuilder("%");
 			if (leftAdjust)
-				pad(buf, ' ', nspaces);
+				sFormat.append("-");
+			if (explicitPlus)
+				sFormat.append("+");
+			if (space)
+				sFormat.append(" ");
+			if (alternateForm && conversion != 'g' && conversion != 'G')
+				sFormat.append("#");
+			if (zeroPad)
+				sFormat.append("0");
+			if (width != -1)
+				sFormat.append(width);
+			if (precision != -1)
+				sFormat.append(".").append(precision);
+			sFormat.append((char) conversion);
+			buf.append(String.format(sFormat.toString(), number));
 		}
 
 		public void format(Buffer buf, LuaString s) {
@@ -617,7 +605,7 @@ public class StringLib extends TwoArgFunction {
 			int newLength = precision == -1 ? s.length() : Math.min(precision, s.length());
 
 			if (!leftAdjust)
-				pad(buf, ' ', width - newLength);
+				pad(buf, zeroPad ? '0' : ' ', width - newLength);
 
 			buf.append(s.substring(0, newLength));
 
