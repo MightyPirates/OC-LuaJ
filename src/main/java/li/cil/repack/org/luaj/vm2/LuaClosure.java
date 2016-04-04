@@ -577,7 +577,7 @@ public class LuaClosure extends LuaFunction {
 	}
 
 	private void processErrorHooks(LuaError le, Prototype p, int pc) {
-		le.fileline = (p.source != null ? p.shortsource() : "?") + ":" + (p.lineinfo != null && pc >= 0 && pc < p.lineinfo.length ? String.valueOf(p.lineinfo[pc]) : "?");
+		le.fileline = (p.source != null ? p.shortsource() : "?") + ":" + (p.lineinfo != null && pc >= 0 && pc < p.lineinfo.length ? String.valueOf(p.lineinfo[pc]) : "?") + ": ";
 		le.traceback = errorHook(le.getMessage(), le.level);
 	}
 
