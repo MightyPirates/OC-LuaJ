@@ -26,6 +26,7 @@ import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.PrintStream;
+import java.nio.charset.Charset;
 
 import li.cil.repack.org.luaj.vm2.lib.MathLib;
 
@@ -93,6 +94,9 @@ public class LuaString extends LuaValue {
 	 * Exposed to package for testing. */
 	static final int RECENT_STRINGS_MAX_LENGTH = 32;
 
+	/** Java UTF-8 Charset used for decoding byte arrays into Java Strings */
+	private static final Charset UTF_8 = Charset.forName("UTF-8");
+
 	/** Simple cache of recently created strings that are short.
 	 * This is simply a list of strings, indexed by their hash codes modulo the cache size
 	 * that have been recently constructed.  If a string is being constructed frequently
@@ -109,9 +113,7 @@ public class LuaString extends LuaValue {
 	 * @return {@link LuaString} with UTF8 bytes corresponding to the supplied String
 	 */
 	public static LuaString valueOf(String string) {
-		char[] c = string.toCharArray();
-		byte[] b = new byte[lengthAsUtf8(c)];
-		encodeToUtf8(c, c.length, b, 0);
+		byte[] b = string.getBytes(UTF_8);
 		return valueUsing(b, 0, b.length);
 	}
 
@@ -810,20 +812,7 @@ public class LuaString extends LuaValue {
 	 * @see #isValidUtf8()
 	 */
 	public static String decodeAsUtf8(byte[] bytes, int offset, int length) {
-		int i, j, n, b;
-		for (i = offset, j = offset + length, n = 0; i < j; ++n) {
-			switch (0xE0 & bytes[i++]) {
-			case 0xE0:
-				++i;
-			case 0xC0:
-				++i;
-			}
-		}
-		char[] chars = new char[n];
-		for (i = offset, j = offset + length, n = 0; i < j;) {
-			chars[n++] = (char) (((b = bytes[i++]) >= 0 || i >= j) ? b : (b < -32 || i + 1 >= j) ? (((b & 0x3f) << 6) | (bytes[i++] & 0x3f)) : (((b & 0xf) << 12) | ((bytes[i++] & 0x3f) << 6) | (bytes[i++] & 0x3f)));
-		}
-		return new String(chars);
+		return new String(bytes, offset, length, UTF_8);
 	}
 
 	/**
@@ -837,9 +826,22 @@ public class LuaString extends LuaValue {
 	public static int lengthAsUtf8(char[] chars) {
 		int i, b;
 		char c;
-		for (i = b = chars.length; --i >= 0;)
-			if ((c = chars[i]) >= 0x80)
-				b += (c >= 0x800) ? 2 : 1;
+		for (i = 0, b = 0; i < chars.length; i++) {
+			if ((c = chars[i]) < 0x80 || (c >= 0xdc00 && c < 0xe000)) {
+				b += 1;
+			} else if (c < 0x800) {
+				b += 2;
+			} else if (c >= 0xd800 && c < 0xdc00) {
+				if (i + 1 < chars.length && chars[i+1] >= 0xdc00 && chars[i+1] < 0xe000) {
+					b += 4;
+					i++;
+				} else {
+					b += 1;
+				}
+			} else {
+				b += 3;
+			}
+		}
 		return b;
 	}
 
@@ -865,10 +867,22 @@ public class LuaString extends LuaValue {
 			if ((c = chars[i]) < 0x80) {
 				bytes[j++] = (byte) c;
 			} else if (c < 0x800) {
-				bytes[j++] = (byte) (0xC0 | ((c >> 6) & 0x1f));
+				bytes[j++] = (byte) (0xC0 | ((c >> 6)));
 				bytes[j++] = (byte) (0x80 | (c & 0x3f));
+			} else if (c >= 0xd800 && c < 0xdc00) {
+				if (i + 1 < nchars && chars[i+1] >= 0xdc00 && chars[i+1] < 0xe000) {
+					int uc = 0x10000 + (((c & 0x3ff) << 10) | (chars[++i] & 0x3ff));
+					bytes[j++] = (byte) (0xF0 | ((uc >> 18)));
+					bytes[j++] = (byte) (0x80 | ((uc >> 12) & 0x3f));
+					bytes[j++] = (byte) (0x80 | ((uc >> 6) & 0x3f));
+					bytes[j++] = (byte) (0x80 | (uc & 0x3f));
+				} else {
+					bytes[j++] = (byte) '?';
+				}
+			} else if (c >= 0xdc00 && c < 0xe000) {
+				bytes[j++] = (byte) '?';
 			} else {
-				bytes[j++] = (byte) (0xE0 | ((c >> 12) & 0x0f));
+				bytes[j++] = (byte) (0xE0 | ((c >> 12)));
 				bytes[j++] = (byte) (0x80 | ((c >> 6) & 0x3f));
 				bytes[j++] = (byte) (0x80 | (c & 0x3f));
 			}
@@ -890,6 +904,8 @@ public class LuaString extends LuaValue {
 			if (((c & 0xE0) == 0xC0) && i < j && (m_bytes[i++] & 0xC0) == 0x80)
 				continue;
 			if (((c & 0xF0) == 0xE0) && i + 1 < j && (m_bytes[i++] & 0xC0) == 0x80 && (m_bytes[i++] & 0xC0) == 0x80)
+				continue;
+			if (((c & 0xF8) == 0xF0) && i + 2 < j && (m_bytes[i++] & 0xC0) == 0x80 && (m_bytes[i++] & 0xC0) == 0x80 && (m_bytes[i++] & 0xC0) == 0x80)
 				continue;
 			return false;
 		}
