@@ -47,6 +47,7 @@
 		<module>luaj-jse</module>
 		<module>luaj-jme</module>
 		<module>luaj-test</module>
+		<module>oc-luaj</module>
 	</modules>
 
 	<properties>

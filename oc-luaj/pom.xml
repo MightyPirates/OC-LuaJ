@@ -1,0 +1,76 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+
+	<parent>
+		<groupId>org.luaj</groupId>
+		<artifactId>luaj-parent</artifactId>
+		<version>3.0-SNAPSHOT</version>
+	</parent>
+
+	<groupId>li.cil.repack.org.luaj</groupId>
+	<artifactId>oc-luaj</artifactId>
+
+	<name>oc-luaj</name>
+	<description>LuaJ for OpenComputers</description>
+
+	<dependencies>
+		<dependency>
+			<groupId>org.luaj</groupId>
+			<artifactId>luaj-core</artifactId>
+			<version>${project.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.luaj</groupId>
+			<artifactId>luaj-jse</artifactId>
+			<version>${project.version}</version>
+		</dependency>
+	</dependencies>
+
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-shade-plugin</artifactId>
+				<version>3.3.0</version>
+				<executions>
+					<execution>
+						<phase>package</phase>
+						<goals>
+							<goal>shade</goal>
+						</goals>
+					</execution>
+				</executions>
+				<configuration>
+					<minimizeJar>false</minimizeJar>
+					<artifactSet>
+						<includes>
+							<include>org.luaj:luaj-core</include>
+							<include>org.luaj:luaj-jse</include>
+						</includes>
+					</artifactSet>
+					<relocations>
+						<relocation>
+							<pattern>org.luaj</pattern>
+							<shadedPattern>li.cil.repack.org.luaj</shadedPattern>
+						</relocation>
+					</relocations>
+					<filters>
+						<filter>
+							<artifact>*:*</artifact>
+							<excludes>
+								<exclude>*.class</exclude>
+								<exclude>li/cil/repack/org/luaj/vm2/luajc/**</exclude>
+								<exclude>li/cil/repack/org/luaj/vm2/script/**</exclude>
+								<exclude>org/luaj/vm2/luajc/**</exclude>
+								<exclude>org/luaj/vm2/script/**</exclude>
+							</excludes>
+						</filter>
+					</filters>
+				</configuration>
+			</plugin>
+		</plugins>
+	</build>
+
+</project>
