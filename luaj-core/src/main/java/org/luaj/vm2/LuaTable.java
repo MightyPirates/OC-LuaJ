@@ -78,7 +78,6 @@ import java.util.Vector;
  */
 public class LuaTable extends LuaValue implements Metatable {
 	private static final int       MIN_HASH_CAPACITY = 2;
-	private static final LuaString N                 = valueOf("n");
 
 	/** the array values */
 	protected LuaValue[] array;
@@ -151,7 +150,6 @@ public class LuaTable extends LuaValue implements Metatable {
 		int nskip = firstarg-1;
 		int n = Math.max(varargs.narg()-nskip, 0);
 		presize(n, 1);
-		set(N, valueOf(n));
 		for (int i = 1; i <= n; i++)
 			set(i, varargs.arg(i+nskip));
 	}
